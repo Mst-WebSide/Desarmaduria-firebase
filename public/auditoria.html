@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trazabilidad — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<div id="app-topbar"></div>
+<main class="ancho">
+  <h1>🕵️ Trazabilidad</h1>
+  <p class="subtitulo">Visible solo para administradores: qué vendió cada persona, a qué precio, a quién y de qué vehículo — y una bitácora de toda la actividad sensible del sistema (ventas anuladas, repuestos editados, usuarios modificados, etc.).</p>
+
+  <div class="card">
+    <h2 style="margin-top:0">Detalle de ventas por ítem</h2>
+    <div class="toolbar">
+      <div>
+        <label style="margin:0">Vendedor</label>
+        <select id="dv-usuario"><option value="">Todos</option></select>
+      </div>
+      <div>
+        <label style="margin:0">Categoría</label>
+        <select id="dv-categoria"><option value="">Todas</option></select>
+      </div>
+      <div>
+        <label style="margin:0">Repuesto</label>
+        <input id="dv-buscar" placeholder="Buscar por nombre...">
+      </div>
+      <div>
+        <label style="margin:0">Desde</label>
+        <input id="dv-desde" type="date">
+      </div>
+      <div>
+        <label style="margin:0">Hasta</label>
+        <input id="dv-hasta" type="date">
+      </div>
+      <button class="btn pequeno" id="btn-filtrar-ventas" style="align-self:flex-end">Filtrar</button>
+      <button class="btn secundario pequeno" id="btn-exportar-ventas" style="align-self:flex-end">⬇ Exportar CSV</button>
+    </div>
+    <div id="resumen-detalle-ventas" class="subtitulo"></div>
+    <div id="tabla-detalle-ventas"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Bitácora de actividad</h2>
+    <div class="toolbar">
+      <div>
+        <label style="margin:0">Usuario</label>
+        <select id="da-usuario"><option value="">Todos</option></select>
+      </div>
+      <div>
+        <label style="margin:0">Tipo de acción</label>
+        <select id="da-accion"><option value="">Todas</option></select>
+      </div>
+      <div>
+        <label style="margin:0">Desde</label>
+        <input id="da-desde" type="date">
+      </div>
+      <div>
+        <label style="margin:0">Hasta</label>
+        <input id="da-hasta" type="date">
+      </div>
+      <button class="btn pequeno" id="btn-filtrar-auditoria" style="align-self:flex-end">Filtrar</button>
+      <button class="btn secundario pequeno" id="btn-exportar-auditoria" style="align-self:flex-end">⬇ Exportar CSV</button>
+    </div>
+    <div id="tabla-auditoria"></div>
+  </div>
+</main>
+<footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar(['admin']);</script>
+<script src="/js/auditoria.js"></script>
+</body>
+</html>

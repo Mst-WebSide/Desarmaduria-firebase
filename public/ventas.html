@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vender — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<div id="app-topbar"></div>
+<main class="ancho">
+  <h1>🧾 Registrar venta</h1>
+  <p class="subtitulo">Busca el repuesto en el inventario, agrégalo a la venta y elige el tipo de pago. Al guardar se descuenta el stock y se genera el ticket.</p>
+
+  <div class="card no-imprimir" id="card-pos">
+    <label>Buscar repuesto</label>
+    <input id="buscar-repuesto" placeholder="Escribe el nombre o código del repuesto...">
+    <div class="resultado-buscar" id="resultados-busqueda" style="display:none"></div>
+
+    <div class="subseccion-titulo" style="margin-top:20px">Repuestos en esta venta</div>
+    <div id="carrito"></div>
+    <p class="vacio" id="carrito-vacio">Todavía no has agregado ningún repuesto.</p>
+
+    <div class="fila" style="grid-template-columns: 1fr 1fr 1fr; margin-top:16px">
+      <div>
+        <label>Tipo de pago</label>
+        <select id="tipo-pago">
+          <option value="efectivo">Efectivo</option>
+          <option value="tarjeta_debito">Tarjeta débito</option>
+          <option value="tarjeta_credito">Tarjeta crédito</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div><label>Cliente (opcional)</label><input id="cliente-nombre"></div>
+      <div><label>Teléfono cliente (opcional)</label><input id="cliente-telefono"></div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px">
+      <div style="font-size:1.3rem; font-weight:800">Total: <span id="total-venta">$0</span></div>
+      <button class="btn exito" id="btn-cobrar">✓ Confirmar venta</button>
+    </div>
+    <div id="mensaje-venta"></div>
+  </div>
+
+  <div class="card" id="card-ticket" style="display:none">
+    <div class="ticket" id="ticket-contenido"></div>
+    <div style="text-align:center; margin-top:16px" class="no-imprimir">
+      <button class="btn secundario" id="btn-imprimir">🖨 Imprimir ticket</button>
+      <button class="btn" id="btn-nueva-venta">+ Nueva venta</button>
+    </div>
+  </div>
+
+  <div class="card no-imprimir">
+    <h2 style="margin-top:0">Ventas recientes</h2>
+    <div id="lista-ventas"></div>
+  </div>
+</main>
+<footer class="no-imprimir">Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar();</script>
+<script src="/js/ventas.js"></script>
+</body>
+</html>

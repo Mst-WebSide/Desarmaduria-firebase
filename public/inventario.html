@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventario — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<div id="app-topbar"></div>
+<main class="ancho">
+  <h1>📦 Inventario de repuestos</h1>
+  <p class="subtitulo">Repuestos sacados de los vehículos que ingresaron a desarme, o comprados por separado. Se descuentan solos cada vez que se registra una venta.</p>
+
+  <div class="card" id="card-nuevo" style="display:none">
+    <h2 style="margin-top:0">Agregar repuesto</h2>
+    <div class="fila" style="grid-template-columns: 2fr 1fr 1fr">
+      <div><label>Nombre</label><input id="r-nombre" placeholder="Ej: Alternador Hilux 2015"></div>
+      <div><label>Código (opcional)</label><input id="r-codigo"></div>
+      <div><label>Categoría</label>
+        <select id="r-categoria"></select>
+      </div>
+    </div>
+    <div class="fila" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr">
+      <div><label>Cantidad</label><input id="r-cantidad" type="number" min="0" value="1"></div>
+      <div><label>Mínimo (alerta)</label><input id="r-minima" type="number" min="0" value="1"></div>
+      <div><label>Precio venta ($)</label><input id="r-precio" type="number" min="0"></div>
+      <div><label>Costo ($, opcional)</label><input id="r-costo" type="number" min="0"></div>
+      <div><label>Ubicación</label><input id="r-ubicacion" placeholder="Ej: Estante A1"></div>
+    </div>
+    <label>Vehículo del que salió (opcional — vacío si es genérico o comprado aparte)</label>
+    <select id="r-vehiculo"><option value="">— Repuesto genérico —</option></select>
+    <label>Fotos (hasta 3, opcional)</label>
+    <div class="fotos-slots" id="fotos-nuevo-repuesto">
+      <label class="foto-slot" data-slot="0">
+        <input type="file" accept="image/*" class="input-foto-nueva" data-slot="0" hidden>
+        <span class="foto-slot-vacio">+ Agregar foto</span>
+        <img class="foto-slot-preview" style="display:none">
+        <button type="button" class="foto-slot-quitar" style="display:none">✕</button>
+      </label>
+      <label class="foto-slot" data-slot="1">
+        <input type="file" accept="image/*" class="input-foto-nueva" data-slot="1" hidden>
+        <span class="foto-slot-vacio">+ Agregar foto</span>
+        <img class="foto-slot-preview" style="display:none">
+        <button type="button" class="foto-slot-quitar" style="display:none">✕</button>
+      </label>
+      <label class="foto-slot" data-slot="2">
+        <input type="file" accept="image/*" class="input-foto-nueva" data-slot="2" hidden>
+        <span class="foto-slot-vacio">+ Agregar foto</span>
+        <img class="foto-slot-preview" style="display:none">
+        <button type="button" class="foto-slot-quitar" style="display:none">✕</button>
+      </label>
+    </div>
+    <div style="margin-top:14px">
+      <button class="btn" id="btn-crear-repuesto">+ Agregar al inventario</button>
+    </div>
+    <div id="mensaje-repuesto"></div>
+  </div>
+
+  <div class="card" id="card-carga-masiva" style="display:none">
+    <h2 style="margin-top:0">Carga masiva por Excel</h2>
+    <p class="subtitulo" style="margin-top:-6px">Sube un solo Excel con muchas filas de una vez, tanto para Inventario como para Inventario Bodega (hoja "Inventario" y hoja "Inventario Bodega" del mismo archivo). Si no tienes uno todavía, descarga la plantilla de ejemplo y complétala.</p>
+    <div class="fila" style="grid-template-columns: auto 1fr auto; align-items:end">
+      <div><label>&nbsp;</label><a class="btn secundario" href="/api/carga-masiva/plantilla" style="text-decoration:none">⬇️ Descargar plantilla</a></div>
+      <div><label>Archivo (.xlsx)</label><input type="file" id="cm-archivo" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></div>
+      <div><label>&nbsp;</label><button class="btn" id="btn-cargar-masivo">Subir y cargar</button></div>
+    </div>
+    <div id="mensaje-carga-masiva"></div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <input id="buscar" placeholder="Buscar por nombre o código..." style="min-width:220px">
+      <select id="filtro-categoria"><option value="">Todas las categorías</option></select>
+      <label style="display:flex; align-items:center; gap:6px; margin:0; font-weight:normal">
+        <input type="checkbox" id="filtro-bajo-stock" style="width:auto"> Solo stock bajo
+      </label>
+      <button class="btn secundario pequeno" id="btn-refrescar" style="margin-left:auto">Actualizar</button>
+    </div>
+    <div id="lista-inventario"></div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal-fotos" style="display:none">
+  <div class="modal-fotos-card">
+    <div class="modal-fotos-header">
+      <h3 id="modal-fotos-titulo">Fotos del repuesto</h3>
+      <button type="button" class="btn secundario pequeno" id="btn-cerrar-modal-fotos">✕ Cerrar</button>
+    </div>
+    <div class="modal-fotos-grid" id="modal-fotos-grid"></div>
+  </div>
+</div>
+<footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar();</script>
+<script src="/js/inventario.js"></script>
+</body>
+</html>

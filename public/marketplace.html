@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercado entre negocios — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<div id="app-topbar"></div>
+<main class="ancho">
+  <h1>🤝 Mercado entre negocios</h1>
+  <p class="subtitulo">Si te falta un repuesto, búscalo en otras desarmadurías registradas en la plataforma y coordina por chat — así el cliente igual se lleva su repuesto y ambos negocios ganan.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0">Buscar un repuesto en otras desarmadurías</h2>
+    <div class="fila" style="grid-template-columns: 2fr 1fr auto">
+      <div><label>Nombre del repuesto</label><input id="buscar-marketplace" placeholder="Ej: alternador, turbo, caja de cambios..."></div>
+      <div><label>Categoría</label><select id="filtro-categoria-mkt"><option value="">Todas</option></select></div>
+      <div><button class="btn" id="btn-buscar-mkt" style="margin-top:26px">Buscar</button></div>
+    </div>
+    <div id="resultados-mkt"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">💬 Chat con otros negocios</h2>
+    <div class="chat-layout">
+      <div>
+        <button class="btn secundario pequeno" id="btn-nuevo-chat" style="width:100%; margin-bottom:8px">+ Iniciar nueva conversación</button>
+        <div class="lista-conversaciones" id="lista-conversaciones"></div>
+      </div>
+      <div>
+        <div id="chat-sin-seleccion" class="vacio">Elige una conversación de la izquierda, o inicia una nueva.</div>
+        <div id="chat-activo" style="display:none">
+          <h3 id="chat-titulo" style="margin:0 0 10px"></h3>
+          <div class="chat-mensajes" id="chat-mensajes"></div>
+          <div class="chat-form">
+            <textarea id="chat-input" placeholder="Escribe un mensaje..."></textarea>
+            <button class="btn" id="btn-enviar-mensaje">Enviar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar(['admin', 'mecanico_lider', 'vendedor']);</script>
+<script src="/js/marketplace.js"></script>
+</body>
+</html>

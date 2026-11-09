@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taller mecánico — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<div id="app-topbar"></div>
+<main>
+  <h1>🔧 Taller mecánico</h1>
+  <p class="subtitulo">Ingresa un vehículo que llega a reparación, arma el presupuesto, y al entregarlo registra los trabajos hechos, el cobro final y genera el PDF de entrega.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0">Ingresar vehículo al taller</h2>
+    <div class="subseccion-titulo" style="margin-top:0">Datos del dueño</div>
+    <div class="fila" style="grid-template-columns: 1.3fr 1fr 1fr">
+      <div><label>Nombre</label><input id="t-dueno-nombre" placeholder="Nombre completo" autocomplete="off"></div>
+      <div><label>Teléfono</label><input id="t-dueno-telefono" placeholder="+56 9..." autocomplete="off"></div>
+      <div><label>RUT</label><input id="t-dueno-rut" placeholder="11.111.111-1" autocomplete="off"></div>
+    </div>
+    <div class="subseccion-titulo">Datos del vehículo</div>
+    <div class="fila" style="grid-template-columns: 1fr 1fr 1fr 0.7fr 0.8fr">
+      <div><label>Patente</label><input id="t-patente" placeholder="AB1234"></div>
+      <div><label>Marca</label><input id="t-marca"></div>
+      <div><label>Modelo</label><input id="t-modelo"></div>
+      <div><label>Año</label><input id="t-anio" type="number" min="1970" max="2100"></div>
+      <div><label>Color</label><input id="t-color"></div>
+    </div>
+    <div class="subseccion-titulo">Comentario / qué se le hará</div>
+    <div class="fila" style="grid-template-columns: 1fr">
+      <div><textarea id="t-comentario" rows="2" placeholder="Ej: revisar ruido en suspensión delantera, cambiar pastillas de freno..."></textarea></div>
+    </div>
+    <div class="subseccion-titulo">Presupuesto</div>
+    <div class="fila" style="grid-template-columns: 1fr 2fr">
+      <div><label>Monto estimado</label><input id="t-presupuesto-monto" type="number" min="0" placeholder="$"></div>
+      <div><label>Notas del presupuesto</label><input id="t-presupuesto-notas" placeholder="Ej: incluye repuestos, no incluye IVA..."></div>
+    </div>
+    <button class="btn" id="btn-crear-orden" style="margin-top:10px">+ Ingresar vehículo</button>
+    <div id="mensaje-crear-orden"></div>
+  </div>
+
+  <div class="card" id="card-detalle" style="display:none">
+    <div class="toolbar">
+      <h2 style="margin:0" id="detalle-titulo">Orden</h2>
+      <span class="badge otro" id="detalle-badge-estado" style="margin-left:auto"></span>
+    </div>
+
+    <div class="subseccion-titulo" style="margin-top:0">Datos del dueño</div>
+    <div class="fila" style="grid-template-columns: 1.3fr 1fr 1fr">
+      <div><label>Nombre</label><input id="d-dueno-nombre" data-campo="dueno_nombre" autocomplete="off"></div>
+      <div><label>Teléfono</label><input id="d-dueno-telefono" data-campo="dueno_telefono" autocomplete="off"></div>
+      <div><label>RUT</label><input id="d-dueno-rut" data-campo="dueno_rut" autocomplete="off"></div>
+    </div>
+    <div class="subseccion-titulo">Datos del vehículo</div>
+    <div class="fila" style="grid-template-columns: 1fr 1fr 1fr 0.7fr 0.8fr">
+      <div><label>Patente</label><input id="d-patente" data-campo="vehiculo_patente"></div>
+      <div><label>Marca</label><input id="d-marca" data-campo="vehiculo_marca"></div>
+      <div><label>Modelo</label><input id="d-modelo" data-campo="vehiculo_modelo"></div>
+      <div><label>Año</label><input id="d-anio" type="number" data-campo="vehiculo_anio"></div>
+      <div><label>Color</label><input id="d-color" data-campo="vehiculo_color"></div>
+    </div>
+    <div class="subseccion-titulo">Comentario / qué se le hará</div>
+    <div class="fila" style="grid-template-columns: 1fr">
+      <div><textarea id="d-comentario" rows="2" data-campo="comentario_ingreso"></textarea></div>
+    </div>
+    <div class="subseccion-titulo">Presupuesto</div>
+    <div class="fila" style="grid-template-columns: 1fr 2fr">
+      <div><label>Monto estimado</label><input id="d-presupuesto-monto" type="number" min="0" data-campo="presupuesto_monto"></div>
+      <div><label>Notas del presupuesto</label><input id="d-presupuesto-notas" data-campo="presupuesto_notas"></div>
+    </div>
+    <div id="mensaje-detalle"></div>
+
+    <div id="zona-entrega">
+      <div class="subseccion-titulo">Entregar vehículo</div>
+      <div class="fila" style="grid-template-columns: 1fr">
+        <div><label>Trabajos realizados</label><textarea id="d-trabajos" rows="3" placeholder="Detalle de lo que se hizo..."></textarea></div>
+      </div>
+      <div class="fila" style="grid-template-columns: 1fr">
+        <div><label>Cobro final</label><input id="d-cobro-final" type="number" min="0" placeholder="$"></div>
+      </div>
+      <button class="btn exito" id="btn-entregar" style="margin-top:10px">✓ Entregar vehículo</button>
+    </div>
+
+    <div id="zona-entregado" style="display:none">
+      <div class="subseccion-titulo">Entrega</div>
+      <p><strong>Entregado:</strong> <span id="e-fecha-entrega"></span></p>
+      <p><strong>Trabajos realizados:</strong></p>
+      <p id="e-trabajos" style="white-space:pre-wrap"></p>
+      <p><strong>Cobro final:</strong> <span id="e-cobro-final"></span></p>
+      <a class="btn morado" id="btn-descargar-pdf" style="margin-top:10px; display:inline-block; text-decoration:none">📄 Descargar PDF de entrega</a>
+    </div>
+
+    <button class="btn secundario" id="btn-cerrar-detalle" style="margin-top:16px">Cerrar</button>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">En el taller</h2>
+    <div id="lista-en-taller"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Vehículos entregados</h2>
+    <div id="lista-entregados"></div>
+  </div>
+</main>
+<footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar(['admin', 'mecanico_lider']);</script>
+<script src="/js/taller.js"></script>
+</body>
+</html>

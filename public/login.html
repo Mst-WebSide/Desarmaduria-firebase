@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingresar — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<main style="max-width:400px; padding-top:70px">
+  <div class="card login-card" style="text-align:center">
+    <img src="/img/logo.png" alt="Desarmaduría Quillota" class="login-logo">
+    <h1 style="margin-bottom:4px">ERP Desarmaduría</h1>
+    <p class="subtitulo">Ingresa con tu usuario para ver los datos de tu negocio.</p>
+    <label for="usuario">Usuario</label>
+    <input id="usuario" autocomplete="username" autofocus>
+    <label for="password">Contraseña</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <div style="margin-top:18px">
+      <button class="btn" id="btn-login" style="width:100%">Ingresar</button>
+    </div>
+    <div id="mensaje"></div>
+  </div>
+</main>
+<footer>Cada negocio ve únicamente sus propios datos.</footer>
+<script src="/js/login.js"></script>
+</body>
+</html>

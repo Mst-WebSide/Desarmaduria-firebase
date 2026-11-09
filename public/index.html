@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inicio — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<div id="app-topbar"></div>
+<main>
+  <h1 id="titulo-saludo">Hola 👋</h1>
+  <p class="subtitulo" id="subtitulo-negocio"></p>
+
+  <div class="grid" id="stats-rapidas"></div>
+
+  <h2>Accesos rápidos</h2>
+  <div class="grid" id="accesos"></div>
+</main>
+<footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar();</script>
+<script src="/js/index.js"></script>
+</body>
+</html>

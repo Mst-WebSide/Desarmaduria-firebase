@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventario Bodega — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<div id="app-topbar"></div>
+<main class="ancho">
+  <h1>🏬 Inventario Bodega (Compra directa)</h1>
+  <p class="subtitulo">Repuestos que no salen de desarmar un vehículo, sino de una compra directa (por ejemplo, un motor completo que se separa en piezas, o un repuesto suelto). Cada compra tiene su propio número (Motor 1, Motor 2...) que heredan todas sus piezas, y se guarda en una repisa y fila específica. Es un inventario totalmente aparte del de Vehículos.</p>
+
+  <div class="card" id="card-repisas" style="display:none">
+    <h2 style="margin-top:0">Repisas</h2>
+    <p class="subtitulo" style="margin-top:-6px">Define dónde se guarda físicamente lo que compras. Puedes editar el nombre o la cantidad de filas cuando quieras.</p>
+    <div id="lista-repisas"></div>
+    <div class="fila" style="grid-template-columns: 2fr 1fr auto; margin-top:10px">
+      <div><label>Nueva repisa</label><input id="rep-nombre" placeholder="Ej: Repisa 2"></div>
+      <div><label>Cantidad de filas</label><input id="rep-filas" type="number" min="1" value="5"></div>
+      <div style="align-self:end"><button class="btn secundario" id="btn-crear-repisa">+ Agregar repisa</button></div>
+    </div>
+    <div id="mensaje-repisa"></div>
+  </div>
+
+  <div class="card" id="card-nueva-compra" style="display:none">
+    <h2 style="margin-top:0">Registrar compra bodega</h2>
+    <p class="subtitulo" style="margin-top:-6px">¿Vas a cargar muchas piezas de una vez? En <a href="/inventario.html">Inventario</a> hay una carga masiva por Excel que también sirve para Inventario Bodega.</p>
+    <div class="fila" style="grid-template-columns: 2fr 1fr 1fr">
+      <div><label>Nombre de la compra</label><input id="c-nombre" placeholder="Ej: Motor Toyota usado"></div>
+      <div><label>Proveedor (opcional)</label><input id="c-proveedor"></div>
+      <div><label>Costo total ($, opcional)</label><input id="c-costo" type="number" min="0"></div>
+    </div>
+    <label>Observaciones (opcional)</label>
+    <input id="c-obs">
+
+    <div class="subseccion-titulo" style="margin-top:20px">Piezas / repuestos de esta compra</div>
+    <p class="subtitulo" style="margin-top:-6px">Agrega cada pieza que vas a vender por separado. Si es un repuesto único (no se divide en piezas), agrega solo una fila con el mismo nombre de la compra. Todas quedan con el mismo número que la compra (ej. "Motor 1").</p>
+    <div id="piezas-compra"></div>
+    <button type="button" class="btn secundario pequeno" id="btn-agregar-pieza" style="margin-top:8px">+ Agregar pieza</button>
+
+    <div style="margin-top:16px">
+      <button class="btn" id="btn-crear-compra">+ Registrar compra y sus piezas</button>
+    </div>
+    <div id="mensaje-compra"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Compras registradas</h2>
+    <div id="lista-compras"></div>
+  </div>
+
+  <div class="card" id="card-detalle-compra" style="display:none">
+    <h2 style="margin-top:0">Piezas de <span id="detalle-compra-nombre"></span></h2>
+    <div id="detalle-piezas"></div>
+    <button class="btn secundario" id="btn-cerrar-detalle-compra">Cerrar</button>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <h2 style="margin:0">Inventario Bodega</h2>
+      <input id="buscar-bodega" placeholder="Buscar por nombre o código..." style="min-width:220px">
+      <select id="filtro-categoria-bodega"><option value="">Todas las categorías</option></select>
+      <label style="display:flex; align-items:center; gap:6px; margin:0; font-weight:normal">
+        <input type="checkbox" id="filtro-bajo-stock-bodega" style="width:auto"> Solo stock bajo
+      </label>
+      <button class="btn secundario pequeno" id="btn-refrescar-bodega" style="margin-left:auto">Actualizar</button>
+    </div>
+    <div id="lista-inventario-bodega"></div>
+  </div>
+</main>
+<footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar();</script>
+<script src="/js/bodega.js"></script>
+</body>
+</html>

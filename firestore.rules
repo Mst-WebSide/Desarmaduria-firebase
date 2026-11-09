@@ -1,0 +1,14 @@
+// El frontend (public/) nunca habla directo con Firestore: todo pasa por la
+// API propia en el backend (server.js, desplegado en Render), que usa el SDK
+// de administrador (firebase-admin), el cual IGNORA estas reglas por diseño.
+// Estas reglas solo importan como resguardo por si alguna vez se agrega
+// acceso directo desde el navegador con el SDK de cliente — mientras eso no
+// pase, se niega todo.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

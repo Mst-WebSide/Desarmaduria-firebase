@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de ventas — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+<script src="/vendor/chart.umd.js"></script>
+</head>
+<body>
+<div id="app-topbar"></div>
+<main class="ancho">
+  <h1>📊 Panel de ventas</h1>
+  <p class="subtitulo">Visible solo para administradores: ventas totales, por mes, por tipo de repuesto y por tipo de pago.</p>
+
+  <div class="toolbar">
+    <label style="margin:0">Periodo</label>
+    <select id="filtro-rango">
+      <option value="todo">Todo el historial</option>
+      <option value="mes">Este mes</option>
+      <option value="3m">Últimos 3 meses</option>
+      <option value="anio">Este año</option>
+    </select>
+  </div>
+
+  <div class="grid" id="stats-resumen"></div>
+
+  <div class="toolbar">
+    <label style="margin:0">Tipo de gráfico</label>
+    <div class="selector-grafico" id="selector-tipo-grafico">
+      <button type="button" data-tipo="circular" class="activo">⚪ Circular</button>
+      <button type="button" data-tipo="barras">📊 Barras</button>
+      <button type="button" data-tipo="lineal">📈 Líneas</button>
+    </div>
+    <span class="subtitulo" style="margin:0; padding:0">— aplica a "Tipo de pago" y "Ventas por tipo de repuesto"</span>
+  </div>
+
+  <div class="grid" style="grid-template-columns: 1.4fr 1fr">
+    <div class="card">
+      <h2 style="margin-top:0">Ventas por mes</h2>
+      <canvas id="grafico-mes" height="140"></canvas>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0">Tipo de pago</h2>
+      <canvas id="grafico-pago" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns: 1fr 1fr">
+    <div class="card">
+      <h2 style="margin-top:0">Ventas por tipo de repuesto</h2>
+      <canvas id="grafico-categoria" height="220"></canvas>
+      <p class="vacio" id="grafico-categoria-vacio" hidden>Todavía no hay ventas registradas en este periodo.</p>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0">🏆 Repuestos más vendidos</h2>
+      <div id="tabla-top-repuestos"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Historial de ventas</h2>
+    <div id="tabla-ventas"></div>
+  </div>
+</main>
+<footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar(['admin']);</script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

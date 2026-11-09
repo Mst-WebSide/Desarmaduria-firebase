@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehículos — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<div id="app-topbar"></div>
+<main>
+  <h1>🚗 Vehículos ingresados</h1>
+  <p class="subtitulo">Registra cada auto que llega para desarmar. Desde acá también puedes ver qué repuestos ya se cargaron de cada uno (en Inventario) y marcarlo como "Desarmado" cuando ya se le sacó todo lo aprovechable.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0">Registrar vehículo nuevo</h2>
+    <div class="fila" style="grid-template-columns: 1fr 1fr 1fr">
+      <div><label>Marca</label><input id="v-marca"></div>
+      <div><label>Modelo</label><input id="v-modelo"></div>
+      <div><label>Año</label><input id="v-anio" type="number" min="1970" max="2100"></div>
+    </div>
+    <div class="fila" style="grid-template-columns: 1.2fr 1fr 1.3fr">
+      <div>
+        <label>N° de vehículo</label>
+        <input id="v-numero" type="number" min="1" disabled>
+        <label style="display:flex; align-items:center; gap:6px; font-weight:normal; font-size:0.78rem; margin:4px 0 0; color:var(--gris-600)">
+          <input type="checkbox" id="v-numero-manual" style="width:auto"> Asignar manualmente
+        </label>
+      </div>
+      <div><label>Último ingreso</label><input id="v-ultimo-ingreso" readonly value="—"></div>
+      <div><label>Origen</label><input id="v-origen" placeholder="Ej: Compra a particular"></div>
+    </div>
+    <div class="fila" style="grid-template-columns: 1fr 1fr">
+      <div><label>Costo de compra del vehículo</label><input id="v-costo" type="number" min="0" placeholder="$"></div>
+      <div><label>Valor de referencia del motor entero</label><input id="v-valor-motor" type="number" min="0" placeholder="$"></div>
+    </div>
+    <div class="fila" style="grid-template-columns: 1fr">
+      <div><label>Observaciones</label><input id="v-obs"></div>
+    </div>
+    <div class="subseccion-titulo" style="margin-top:20px">Repuestos que tiene este vehículo</div>
+    <p class="subtitulo" style="margin-top:-6px">Marca los repuestos que se le van a sacar, agrupados por categoría (por ejemplo, en Motor están el block, el cigüeñal, el turbo, etc.). Se cargan al inventario apenas registres el vehículo, ya ligados a él. Si falta alguno en la lista, agrégalo con "+ Otro repuesto".</p>
+    <div id="categorias-repuestos"></div>
+
+    <button class="btn" id="btn-crear-vehiculo" style="margin-top:10px">+ Registrar vehículo y sus repuestos</button>
+    <div id="mensaje-vehiculo"></div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <h2 style="margin:0">Vehículos</h2>
+      <select id="filtro-estado" style="margin-left:auto">
+        <option value="">Todos los estados</option>
+        <option value="en_desarme">En desarme</option>
+        <option value="desarmado">Desarmado</option>
+      </select>
+    </div>
+    <div id="lista-vehiculos"></div>
+  </div>
+
+  <div class="card" id="card-detalle" style="display:none">
+    <h2 style="margin-top:0">Repuestos de <span id="detalle-patente"></span></h2>
+    <div id="detalle-repuestos"></div>
+    <button class="btn secundario" id="btn-cerrar-detalle">Cerrar</button>
+  </div>
+</main>
+<footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar(['admin', 'mecanico_lider']);</script>
+<script src="/js/vehiculos.js"></script>
+</body>
+</html>

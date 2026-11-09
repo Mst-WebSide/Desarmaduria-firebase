@@ -1,0 +1,728 @@
+:root {
+  /* Marca — tomada del logo de Desarmaduría Quillota */
+  --rojo: #d81d2b;
+  --rojo-osc: #9c1420;
+  --rojo-claro: #fdecec;
+  --negro: #17181c;
+  --negro-suave: #2a2c33;
+  /* Se conserva --azul como color "primario" para no romper nada que lo
+     referencia, pero ahora apunta al rojo de marca. */
+  --azul: var(--rojo);
+  --azul-osc: var(--rojo-osc);
+  --naranja: #ea580c;
+  --verde: #16a34a;
+  --amarillo: #d97706;
+  --morado: #7c3aed;
+  --info: #2563eb;
+  --info-osc: #1e3a8a;
+  --gris-100: #f6f5f4;
+  --gris-200: #e7e5e4;
+  --gris-400: #a3a29e;
+  --gris-600: #57544f;
+  --gris-800: #211f1d;
+  --blanco: #ffffff;
+  --radio: 12px;
+  --sombra: 0 1px 3px rgba(23,24,28,0.08), 0 1px 2px rgba(23,24,28,0.05);
+  --sombra-alta: 0 14px 34px rgba(23,24,28,0.16), 0 4px 10px rgba(23,24,28,0.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(180deg, #faf7f6 0%, var(--gris-100) 260px);
+  color: var(--gris-800);
+  min-height: 100vh;
+  animation: pageFade 0.35s ease;
+}
+
+@keyframes pageFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ==================== Barra superior + menú desplegable ==================== */
+header.topbar {
+  background: linear-gradient(120deg, var(--negro) 0%, #000000 100%);
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: relative;
+  z-index: 50;
+  border-bottom: 3px solid var(--rojo);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+header.topbar a { color: white; text-decoration: none; }
+header.topbar .titulo { font-size: 1.1rem; font-weight: 700; display: flex; flex-direction: column; gap: 2px; }
+header.topbar .titulo .marca { display: flex; align-items: center; gap: 9px; }
+header.topbar .logo-topbar { height: 34px; width: 34px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px rgba(255,255,255,0.15); }
+header.topbar .titulo .negocio { font-size: 0.75rem; font-weight: 400; opacity: 0.8; }
+header.topbar .lado-derecho { display: flex; align-items: center; gap: 14px; }
+header.topbar .usuario-info { font-size: 0.85rem; text-align: right; line-height: 1.3; }
+header.topbar .usuario-info .rol { display: block; font-size: 0.72rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.03em; }
+
+.menu-desplegable { position: relative; }
+.menu-desplegable .btn-menu {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.menu-desplegable .btn-menu:hover { background: rgba(255,255,255,0.2); }
+.menu-desplegable .btn-menu:active { transform: scale(0.96); }
+.menu-desplegable .panel {
+  display: block;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--blanco);
+  color: var(--gris-800);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-alta);
+  min-width: 235px;
+  padding: 6px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  pointer-events: none;
+  transform-origin: top right;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.menu-desplegable.abierto .panel { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+.menu-desplegable .panel a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--gris-800);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.12s ease;
+}
+.menu-desplegable .panel a:hover { background: var(--gris-100); }
+.menu-desplegable .panel a.activo { background: var(--rojo-claro); color: var(--rojo-osc); }
+.menu-desplegable .panel .separador { height: 1px; background: var(--gris-200); margin: 6px 4px; }
+.menu-desplegable .panel .salir { color: var(--rojo); }
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 18px 60px;
+}
+main.ancho { max-width: 1320px; }
+
+h1 { font-size: 1.55rem; margin: 0 0 6px; font-weight: 800; letter-spacing: -0.01em; }
+h1::after { content: ''; display: block; width: 42px; height: 4px; background: var(--rojo); border-radius: 999px; margin-top: 8px; }
+h2 { font-size: 1.15rem; margin: 28px 0 12px; }
+p.subtitulo { color: var(--gris-600); margin-top: 0; }
+
+.card {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(23,24,28,0.04);
+  animation: fadeInUp 0.35s ease both;
+}
+
+/* Logo de inicio de sesión */
+.login-card { padding-top: 28px; animation: fadeInUp 0.4s ease both; }
+.login-logo { width: 96px; height: 96px; object-fit: contain; margin-bottom: 6px; filter: drop-shadow(0 6px 14px rgba(216,29,43,0.25)); }
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.rol-tile, .accion-tile {
+  display: block;
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 26px 20px;
+  text-decoration: none;
+  color: var(--gris-800);
+  border-left: 6px solid var(--rojo);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.accion-tile:hover { transform: translateY(-3px); box-shadow: var(--sombra-alta); }
+.accion-tile .icono { font-size: 1.8rem; }
+.accion-tile h3 { margin: 8px 0 4px; font-size: 1.05rem; }
+.accion-tile p { margin: 0; font-size: 0.85rem; color: var(--gris-600); }
+
+label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--gris-600); margin: 14px 0 5px; }
+input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--gris-200);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--blanco);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+textarea { resize: vertical; min-height: 70px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--rojo); box-shadow: 0 0 0 3px var(--rojo-claro); }
+input:disabled, input[readonly] { background: var(--gris-100); color: var(--gris-600); cursor: not-allowed; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--rojo) 0%, var(--rojo-osc) 100%);
+  color: white;
+  border: none;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(216,29,43,0.28);
+  transition: transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.btn:hover { filter: brightness(1.08); box-shadow: 0 4px 12px rgba(216,29,43,0.36); }
+.btn:active { transform: scale(0.97); }
+.btn.secundario { background: var(--gris-200); color: var(--gris-800); box-shadow: none; }
+.btn.secundario:hover { background: var(--gris-400); filter: none; }
+.btn.peligro { background: linear-gradient(135deg, var(--negro-suave) 0%, var(--negro) 100%); box-shadow: 0 2px 8px rgba(23,24,28,0.3); }
+.btn.exito { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); box-shadow: 0 2px 8px rgba(22,163,74,0.28); }
+.btn.morado { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); box-shadow: 0 2px 8px rgba(124,58,237,0.28); }
+.btn.pequeno { padding: 6px 10px; font-size: 0.82rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; transform: none; }
+
+.fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 8px;
+}
+.fila input, .fila select { margin: 0; }
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.badge.en_desarme { background: #dbeafe; color: var(--info-osc); }
+.badge.desarmado { background: #dcfce7; color: #166534; }
+.badge.completada { background: #dcfce7; color: #166534; }
+.badge.anulada { background: #fee2e2; color: #991b1b; }
+.badge.admin { background: #ede9fe; color: #5b21b6; }
+.badge.mecanico_lider { background: #dbeafe; color: var(--info-osc); }
+.badge.mecanico { background: var(--gris-200); color: var(--gris-600); }
+.badge.vendedor { background: #cffafe; color: #155e75; }
+.badge.efectivo { background: #dcfce7; color: #166534; }
+.badge.tarjeta_debito, .badge.tarjeta_credito { background: #dbeafe; color: var(--info-osc); }
+.badge.transferencia { background: #ede9fe; color: #5b21b6; }
+.badge.otro { background: var(--gris-200); color: var(--gris-600); }
+.badge.bajo-stock { background: #fee2e2; color: #991b1b; }
+/* Marca visible de que un ítem/venta viene de Inventario Bodega (compra
+   directa) y no del inventario que sale de desarmar vehículos. */
+.badge.bodega { background: #fed7aa; color: #9a3412; }
+
+/* ==================== Selector de tipo de gráfico (panel de ventas) ==================== */
+.selector-grafico { display: inline-flex; border: 1px solid var(--gris-200); border-radius: 8px; overflow: hidden; }
+.selector-grafico button {
+  padding: 8px 14px;
+  border: none;
+  background: var(--blanco);
+  color: var(--gris-600);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.selector-grafico button + button { border-left: 1px solid var(--gris-200); }
+.selector-grafico button.activo { background: var(--rojo); color: #fff; }
+.selector-grafico button:hover:not(.activo) { background: var(--gris-100); }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--gris-200); }
+th { color: var(--gris-600); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+tr { transition: background 0.12s ease; }
+tr:hover td { background: var(--gris-100); }
+
+/* Envoltorio para que una tabla ancha se pueda desplazar de lado dentro de
+   su propia tarjeta, en vez de romper el ancho de toda la página (celular). */
+.tabla-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tabla-scroll table { min-width: 640px; }
+
+.stat { text-align: center; }
+.stat .valor { font-size: 1.9rem; font-weight: 800; color: var(--negro); }
+.stat .etiqueta { font-size: 0.8rem; color: var(--gris-600); text-transform: uppercase; letter-spacing: 0.03em; margin-top: 2px; }
+.stat .comparacion { display: inline-flex; align-items: center; gap: 3px; font-size: 0.72rem; font-weight: 700; margin-top: 4px; padding: 1px 8px; border-radius: 999px; }
+.stat .comparacion.subida { background: #dcfce7; color: #166534; }
+.stat .comparacion.bajada { background: #fee2e2; color: #991b1b; }
+
+.mensaje { padding: 10px 14px; border-radius: 8px; font-size: 0.9rem; margin: 12px 0; animation: mensajeIn 0.28s ease both; }
+.mensaje.exito { background: #dcfce7; color: #166534; }
+.mensaje.error { background: #fee2e2; color: #991b1b; }
+.mensaje.info { background: #dbeafe; color: var(--info-osc); }
+@keyframes mensajeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== Notificaciones tipo "toast" ==================== */
+#toast-contenedor {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 320px;
+}
+.toast {
+  background: var(--negro);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  box-shadow: var(--sombra-alta);
+  border-left: 4px solid var(--rojo);
+  animation: toastIn 0.25s ease both;
+}
+.toast.toast-exito { border-left-color: #22c55e; }
+.toast.toast-error { border-left-color: var(--rojo); }
+.toast.toast-info { border-left-color: var(--info); }
+.toast.saliendo { animation: toastOut 0.3s ease both; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(30px); }
+}
+
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.toolbar select, .toolbar input { width: auto; }
+
+.vacio { color: var(--gris-400); font-style: italic; padding: 20px 0; text-align: center; }
+
+.subseccion-titulo { font-size: 0.85rem; font-weight: 700; color: var(--gris-600); text-transform: uppercase; letter-spacing: 0.03em; margin: 16px 0 8px; }
+
+/* ==================== Repuestos por categoría (ingreso de vehículo) ==================== */
+.cat-bloque {
+  border: 1px solid var(--gris-200);
+  border-radius: var(--radio);
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  background: var(--gris-100);
+}
+.cat-bloque summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+.cat-bloque summary::-webkit-details-marker { display: none; }
+.cat-bloque summary::before { content: '▸'; color: var(--gris-600); transition: transform 0.15s; }
+.cat-bloque[open] summary::before { transform: rotate(90deg); }
+.cat-bloque .cat-contador { margin-left: auto; }
+.cat-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px 14px;
+  margin: 12px 0 4px;
+}
+.cat-checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  font-size: 0.9rem;
+  color: var(--gris-800);
+  margin: 0;
+}
+.cat-checkboxes input[type="checkbox"] { width: auto; }
+.cat-filas { margin-top: 8px; }
+.parte-fila {
+  display: grid;
+  grid-template-columns: 1.6fr 90px 120px 1fr auto;
+  gap: 8px;
+  align-items: end;
+  background: var(--blanco);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+.parte-fila input, .parte-fila select { margin: 0; }
+.parte-fila .parte-nombre { font-weight: 600; font-size: 0.88rem; align-self: center; }
+
+/* ==================== Piezas de una compra bodega (compra directa) ==================== */
+.pieza-fila {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 70px 110px 1fr 70px auto;
+  gap: 8px;
+  align-items: end;
+  background: var(--blanco);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+  border: 1px solid var(--gris-200);
+}
+.pieza-fila input, .pieza-fila select { margin: 0; }
+.pieza-fila label { font-size: 0.72rem; color: var(--gris-600); margin-bottom: 2px; display: block; }
+
+/* ==================== POS de ventas ==================== */
+.item-venta {
+  display: grid;
+  grid-template-columns: 2fr 90px 110px 100px auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 8px;
+}
+.item-venta input, .item-venta select { margin: 0; }
+.resultado-buscar {
+  border: 1px solid var(--gris-200);
+  border-radius: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+.resultado-buscar .op {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--gris-200);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.resultado-buscar .op:last-child { border-bottom: none; }
+.resultado-buscar .op:hover { background: var(--gris-100); }
+.resultado-buscar .op .stock { color: var(--gris-600); font-size: 0.8rem; }
+
+.ticket {
+  font-family: 'Courier New', monospace;
+  background: var(--blanco);
+  border: 1px dashed var(--gris-400);
+  padding: 18px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+.ticket h3 { text-align: center; margin: 0 0 4px; }
+.ticket .linea { display: flex; justify-content: space-between; font-size: 0.85rem; margin: 2px 0; }
+.ticket hr { border: none; border-top: 1px dashed var(--gris-400); margin: 8px 0; }
+.ticket .total { font-weight: 800; font-size: 1.05rem; }
+
+/* ==================== Gráficos simples (barras) ==================== */
+.barra-item { margin-bottom: 12px; }
+.barra-item .info { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
+.barra-fondo { background: var(--gris-200); border-radius: 6px; height: 14px; overflow: hidden; }
+.barra-relleno { background: linear-gradient(90deg, var(--rojo), var(--rojo-osc)); height: 100%; border-radius: 6px; width: 0; transition: width 0.6s cubic-bezier(.22,.9,.35,1); }
+
+/* ==================== Marketplace / chat entre negocios ==================== */
+.negocio-resultado {
+  border: 1px solid var(--gris-200);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.negocio-resultado .info-repuesto { flex: 1; min-width: 200px; }
+.negocio-resultado .nombre-repuesto { font-weight: 700; }
+.negocio-resultado .negocio-nombre { font-size: 0.85rem; color: var(--gris-600); }
+
+.chat-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 720px) { .chat-layout { grid-template-columns: minmax(0, 1fr); } }
+.lista-conversaciones { display: flex; flex-direction: column; gap: 6px; }
+.conversacion-item {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.conversacion-item:hover { background: var(--gris-100); }
+.conversacion-item.activa { background: #dbeafe; border-color: var(--info); }
+.conversacion-item .nombre { font-weight: 700; font-size: 0.92rem; }
+.conversacion-item .preview { font-size: 0.8rem; color: var(--gris-600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.conversacion-item .no-leidos {
+  display: inline-block; background: var(--rojo); color: white; border-radius: 999px;
+  font-size: 0.7rem; padding: 1px 7px; margin-left: 6px; font-weight: 700;
+}
+.chat-mensajes { height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px; }
+.chat-burbuja { max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 0.88rem; }
+.chat-burbuja.propio { align-self: flex-end; background: linear-gradient(135deg, var(--rojo), var(--rojo-osc)); color: white; border-bottom-right-radius: 2px; }
+.chat-burbuja.otro { align-self: flex-start; background: var(--gris-100); border-bottom-left-radius: 2px; }
+.chat-burbuja .hora { display: block; font-size: 0.68rem; opacity: 0.7; margin-top: 3px; }
+.chat-form { display: flex; gap: 8px; margin-top: 10px; }
+.chat-form textarea { min-height: 44px; }
+
+/* ==================== Fotos de repuestos (hasta 3 por ítem) ==================== */
+.miniatura {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 1px solid var(--gris-200);
+  display: block;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.miniatura:hover { transform: scale(1.08); box-shadow: var(--sombra); }
+.miniatura-envoltura {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.miniatura-ampliar {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--gris-200);
+  background: #fff;
+  font-size: 0.7rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  box-shadow: var(--sombra);
+}
+.miniatura-envoltura:hover .miniatura-ampliar,
+.miniatura-ampliar:focus-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+/* En celular no hay "hover" — se deja siempre visible para que se note que existe. */
+@media (hover: none) {
+  .miniatura-ampliar { opacity: 1; transform: scale(1); }
+}
+.miniatura-vacia {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  background: var(--gris-100);
+  border: 1px dashed var(--gris-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: default;
+  color: var(--gris-400);
+}
+
+.fotos-slots { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 6px; }
+.foto-slot {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border: 1.5px dashed var(--gris-400);
+  border-radius: var(--radio);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  background: var(--gris-100);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.foto-slot:hover { border-color: var(--rojo); background: var(--rojo-claro); }
+.foto-slot-vacio { font-size: 0.72rem; color: var(--gris-600); text-align: center; padding: 0 6px; font-weight: 600; }
+.foto-slot-preview { width: 100%; height: 100%; object-fit: cover; }
+.foto-slot-quitar {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(23,24,28,0.72);
+  color: white;
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.foto-slot-quitar:hover { background: var(--rojo); }
+
+/* Overlay genérico para modales (fotos, etc.) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23,24,28,0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 200;
+  animation: mensajeIn 0.18s ease both;
+}
+.modal-fotos-card {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-alta);
+  padding: 20px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 86vh;
+  overflow-y: auto;
+}
+.modal-fotos-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.modal-fotos-header h3 { margin: 0; font-size: 1.05rem; }
+.modal-fotos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.modal-foto-slot { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.modal-foto-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radio); cursor: zoom-in; border: 1px solid var(--gris-200); }
+.modal-foto-vacia {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radio);
+  background: var(--gris-100);
+  border: 1px dashed var(--gris-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gris-400);
+  font-size: 0.82rem;
+}
+.modal-foto-controles { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.modal-foto-controles label.btn input[type="file"] { display: none; }
+
+/* Lightbox de foto ampliada */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+.lightbox-overlay.abierto { opacity: 1; pointer-events: auto; }
+.lightbox-overlay .lightbox-img { max-width: 100%; max-height: 100%; border-radius: 6px; box-shadow: var(--sombra-alta); cursor: zoom-out; }
+
+footer {
+  text-align: center;
+  color: var(--gris-400);
+  font-size: 0.8rem;
+  padding: 20px;
+}
+
+@media print {
+  header.topbar, footer, .no-imprimir { display: none !important; }
+  main { max-width: 100%; padding: 0; }
+}
+
+/* ==================== Celular (pantallas angostas) ====================
+   Los formularios usan grillas de varias columnas fijas (definidas inline
+   en cada página según el caso), que se ven bien en escritorio pero se
+   achican demasiado en un teléfono. Acá se fuerza una sola columna — el
+   !important es necesario porque si no, el estilo inline de cada página
+   gana por especificidad y esta regla no tendría efecto. */
+@media (max-width: 700px) {
+  main { padding: 18px 12px 48px; }
+  main.ancho { padding-left: 12px; padding-right: 12px; }
+
+  .card { padding: 16px 14px; }
+
+  /* minmax(0, 1fr) y no solo "1fr": una columna de grilla en "1fr" a secas
+     no se achica más allá del contenido que tiene adentro (un gráfico, un
+     texto largo sin salto de línea), así que ese contenido termina
+     empujando el ancho de la tarjeta entera hacia afuera de la pantalla.
+     Con minmax(0, 1fr) la columna sí puede achicarse y el contenido de
+     adentro se ajusta (o hace su propio scroll, como las tablas). */
+  .grid,
+  .fila {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* Línea de un repuesto en el carrito de Ventas: nombre arriba ocupando
+     todo el ancho, y las 4 celdas restantes (cantidad, precio, subtotal,
+     botón de quitar) en 2 columnas — se arman por posición porque siempre
+     se generan en ese mismo orden desde ventas.js. */
+  .item-venta {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 6px 10px;
+  }
+  .item-venta > *:nth-child(1) { grid-column: 1 / -1; }
+
+  /* Fila de un repuesto marcado al ingresar un vehículo: mismo criterio,
+     el nombre arriba y el resto en 2 columnas (vehiculos.js). */
+  .parte-fila {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 6px 10px;
+  }
+  .parte-fila > *:nth-child(1) { grid-column: 1 / -1; }
+  .parte-fila > *:nth-child(4),
+  .parte-fila > *:nth-child(5) {
+    align-self: center;
+  }
+
+  /* Fila de una pieza dentro de una compra bodega (bodega.js): mismo
+     criterio, el nombre arriba y el resto en 2 columnas. */
+  .pieza-fila {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 6px 10px;
+  }
+  .pieza-fila > *:nth-child(1) { grid-column: 1 / -1; }
+
+  /* Barras de búsqueda/filtro: un campo debajo del otro, ancho completo,
+     más fáciles de tocar que quedar diminutos uno al lado del otro. */
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .toolbar > div,
+  .toolbar > label,
+  .toolbar > span,
+  .toolbar select,
+  .toolbar input,
+  .toolbar button {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+  /* Los botones DENTRO del selector de tipo de gráfico se reparten el ancho
+     entre ellos (flex), no cada uno al 100% — si no, se rompe el grupo. */
+  .toolbar .selector-grafico button { width: auto; flex: 1; }
+}

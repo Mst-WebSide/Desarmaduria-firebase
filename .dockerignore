@@ -1,0 +1,7 @@
+node_modules
+test-doubles
+migracion
+DISEÑO-FIRESTORE.md
+*.md
+.git
+.env

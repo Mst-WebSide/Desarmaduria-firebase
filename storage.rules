@@ -1,0 +1,14 @@
+// Igual que firestore.rules: las fotos de inventario se suben desde el
+// backend (server.js, desplegado en Render) con el SDK de administrador, que
+// ignora estas reglas. Las fotos ya subidas se sirven como objetos públicos
+// (ver firebase/storage-real.js: makePublic()), así que se leen por su URL
+// fija de Cloud Storage sin pasar por aquí — estas reglas solo bloquean que
+// alguien use el SDK de cliente para leer/escribir directo.
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

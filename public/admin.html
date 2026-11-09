@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administración — ERP Desarmaduría</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" type="image/png" href="/img/logo.png">
+</head>
+<body>
+<div id="app-topbar"></div>
+<main>
+  <h1>⚙️ Administración</h1>
+  <p class="subtitulo">Usuarios de tu negocio y datos de contacto.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0">Datos del negocio</h2>
+    <p class="subtitulo" style="margin-top:-6px">El teléfono del dueño es donde va a llegar el aviso de WhatsApp por cada venta, apenas se conecte esa función (ver README).</p>
+    <div class="fila" style="grid-template-columns: 1fr">
+      <div><label>Nombre del negocio</label><input id="n-nombre" placeholder="Ej: Desarmaduría Quillota"></div>
+    </div>
+    <div class="fila" style="grid-template-columns: 1fr 1fr">
+      <div><label>RUT</label><input id="n-rut"></div>
+      <div><label>Teléfono del dueño (WhatsApp)</label><input id="n-telefono" placeholder="+569XXXXXXXX"></div>
+    </div>
+    <div class="fila" style="grid-template-columns: 1fr 1fr">
+      <div><label>Email de contacto</label><input id="n-email"></div>
+      <div><label>Dirección</label><input id="n-direccion"></div>
+    </div>
+    <button class="btn" id="btn-guardar-negocio">Guardar datos del negocio</button>
+    <div id="mensaje-negocio"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Agregar usuario</h2>
+    <div class="fila" style="grid-template-columns: 2fr 1fr auto">
+      <div><label>Nombre completo</label><input id="u-nombre" placeholder="Ej: Rodrigo Muñoz"></div>
+      <div><label>Rol</label>
+        <select id="u-rol">
+          <option value="mecanico">Mecánico (solo vende)</option>
+          <option value="vendedor">Vendedor (inventario, bodega, ventas y mercado)</option>
+          <option value="mecanico_lider">Mecánico líder (ingresa vehículos/repuestos y vende)</option>
+          <option value="admin">Administrador (acceso completo)</option>
+        </select>
+      </div>
+      <div><button class="btn" id="btn-crear-usuario" style="margin-top:26px">+ Crear usuario</button></div>
+    </div>
+    <div class="fila" style="grid-template-columns: 2fr 3fr">
+      <div>
+        <label>Contraseña (opcional)</label>
+        <input id="u-password" type="text" placeholder="Déjalo vacío para generar una automática" minlength="6">
+      </div>
+      <div style="align-self:end; padding-bottom:10px; color:var(--gris-600); font-size:0.9em">
+        Si escribes una, se usa tal cual (mínimo 6 caracteres) y la persona no queda obligada a cambiarla. Si lo dejas vacío, se genera una temporal y sí va a tener que cambiarla al entrar.
+      </div>
+    </div>
+    <div id="mensaje-usuario"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Usuarios de tu negocio</h2>
+    <div id="lista-usuarios"></div>
+  </div>
+</main>
+<footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
+<script src="/js/common.js"></script>
+<script>window.__sesion = ErpAuth.iniciarSesionBar(['admin']);</script>
+<script src="/js/admin.js"></script>
+</body>
+</html>
