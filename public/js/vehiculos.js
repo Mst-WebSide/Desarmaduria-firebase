@@ -332,23 +332,15 @@
       el('detalle-repuestos').innerHTML = `
         <div class="tabla-scroll">
         <table>
-          <thead><tr><th>Foto</th><th>Repuesto</th><th>Categoría</th><th>Stock</th><th>Precio venta</th></tr></thead>
+          <thead><tr><th>Repuesto</th><th>Categoría</th><th>Stock</th><th>Precio venta</th></tr></thead>
           <tbody>
             ${vehiculo.repuestos
-              .map((r) => {
-                const miniatura = r.foto_1
-                  ? `<img src="${r.foto_1}" class="miniatura" data-ampliar-veh="${r.foto_1}">`
-                  : '<div class="miniatura-vacia">📦</div>';
-                return `<tr><td>${miniatura}</td><td>${r.nombre}</td><td>${r.categoria || '—'}</td><td>${r.cantidad_disponible}</td><td>${fmtCLP.format(r.precio_venta)}</td></tr>`;
-              })
+              .map((r) => `<tr><td>${r.nombre}</td><td>${r.categoria || '—'}</td><td>${r.cantidad_disponible}</td><td>${fmtCLP.format(r.precio_venta)}</td></tr>`)
               .join('')}
           </tbody>
         </table>
         </div>
         <p style="margin-top:10px"><a href="/inventario.html" class="btn secundario pequeno">+ Agregar otro repuesto de este vehículo</a></p>`;
-      el('detalle-repuestos').querySelectorAll('[data-ampliar-veh]').forEach((img) => {
-        img.addEventListener('click', () => ErpAuth.verFoto(img.dataset.ampliarVeh));
-      });
     }
     el('card-detalle').style.display = 'block';
     el('card-detalle').scrollIntoView({ behavior: 'smooth' });

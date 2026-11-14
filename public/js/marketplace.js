@@ -19,26 +19,19 @@
       return;
     }
     el('resultados-mkt').innerHTML = data
-      .map((r) => {
-        const miniatura = r.foto_1
-          ? `<img src="${r.foto_1}" class="miniatura" data-ampliar-mkt="${r.foto_1}">`
-          : '<div class="miniatura-vacia">📦</div>';
-        return `
+      .map(
+        (r) => `
       <div class="negocio-resultado">
-        ${miniatura}
         <div class="info-repuesto">
           <div class="nombre-repuesto">${r.nombre} <span class="badge otro">${r.categoria || 'Otro'}</span></div>
           <div class="negocio-nombre">🏪 ${r.negocio_nombre} — stock: ${r.cantidad_disponible} — ${fmtCLP.format(r.precio_venta)}</div>
         </div>
         <button class="btn secundario pequeno" data-contactar="${r.negocio_id}" data-repuesto="${r.nombre}">💬 Contactar</button>
-      </div>`;
-      })
+      </div>`
+      )
       .join('');
     el('resultados-mkt').querySelectorAll('[data-contactar]').forEach((btn) => {
       btn.addEventListener('click', () => iniciarConversacion(btn.dataset.contactar, `Hola, ¿todavía tienen disponible "${btn.dataset.repuesto}"? Tengo un cliente interesado.`));
-    });
-    el('resultados-mkt').querySelectorAll('[data-ampliar-mkt]').forEach((img) => {
-      img.addEventListener('click', () => ErpAuth.verFoto(img.dataset.ampliarMkt));
     });
   }
   el('btn-buscar-mkt').addEventListener('click', buscarMkt);

@@ -5,10 +5,13 @@ el gratuito — sin tarjeta de crédito), **Render** para el backend (este mismo
 `server.js`, sin cambios de framework, plan gratis de Render — tampoco pide
 tarjeta para uso normal) y el propio Render como la puerta de entrada
 pública (no se usa Firebase Hosting: no tiene sentido sin Cloud Run, que sí
-exige el plan Blaze de pago). Todo el trabajo de código ya está hecho y
-probado contra un Firestore falso (ver `test-doubles/`) — lo que queda es
-exclusivamente infraestructura y pasos que solo el dueño de la cuenta puede
-hacer.
+exige el plan Blaze de pago). El sistema no maneja fotos de ningún tipo (ni
+en inventario ni en taller — por decisión del usuario, para no depender de
+Cloud Storage de Firebase, que desde fines de 2024 exige Blaze solo para
+poder crearse, ni de ningún servicio externo de imágenes). Todo el trabajo
+de código ya está hecho y probado contra un Firestore falso (ver
+`test-doubles/`) — lo que queda es exclusivamente infraestructura y pasos
+que solo el dueño de la cuenta puede hacer.
 
 ## 0. Qué es de quién
 
@@ -28,15 +31,16 @@ donde tengas tu terminal a mano.
    diferir del nombre) — se usa en varios pasos siguientes. (Ya hecho:
    `desarmaduria-quillota`.)
 3. **No hace falta pasar a Blaze.** El plan **Spark** (gratuito, sin
-   tarjeta) alcanza de sobra para Firestore y Storage con el uso de una sola
-   desarmaduría (cupos gratis: 50.000 lecturas y 20.000 escrituras al día en
-   Firestore, 1 GB de base de datos, 5 GB de Storage — revisa los cupos
-   actualizados en la consola, pueden cambiar).
+   tarjeta) alcanza de sobra para Firestore con el uso de una sola
+   desarmaduría (cupos gratis: 50.000 lecturas y 20.000 escrituras al día,
+   1 GB de base de datos — revisa los cupos actualizados en la consola,
+   pueden cambiar).
 4. En el menú lateral: **Firestore Database** → Crear base de datos → modo
    **Nativo** (no "Datastore") → elegir una región (ej. `us-central1` o la
    más cercana a Chile que ofrezcan). **Esta elección es definitiva, no se
    puede cambiar después sin crear un proyecto nuevo.**
-5. **Storage** → Comenzar → misma región que Firestore.
+5. **No hace falta entrar a "Storage"** en el menú lateral — el sistema no
+   lo usa (ver nota arriba sobre fotos).
 
 ## 2. Instalar el CLI de Firebase (tú, en tu computador)
 
@@ -86,17 +90,15 @@ firebase use --add            # elige tu proyecto, ponle el alias "default"
 cp .env.example .env
 ```
 
-Completa al menos `FIREBASE_STORAGE_BUCKET` (normalmente
-`<ID-DEL-PROYECTO>.appspot.com` — confírmalo en Storage de la consola).
 `CLAVE_MAESTRA_DESBLOQUEO` es opcional (ver `auth.js`/`server.js`). Esto es
 solo para correr el servidor en tu propio computador antes de desplegar; en
-Render estas variables se configuran por separado (paso 5).
+Render estas variables se configuran por separado (paso 6).
 
 ## 5. Crear la clave de cuenta de servicio (tú)
 
 Render no es infraestructura de Google, así que (a diferencia de Cloud Run)
 no recibe credenciales automáticas — el backend necesita una clave de
-cuenta de servicio para poder leer/escribir en Firestore y Storage.
+cuenta de servicio para poder leer/escribir en Firestore.
 
 1. Firebase Console → ⚙️ Configuración del proyecto → **Cuentas de
    servicio** → "Generar nueva clave privada". Se descarga un archivo
@@ -105,8 +107,7 @@ cuenta de servicio para poder leer/escribir en Firestore y Storage.
 
 ## 6. Desplegar el backend en Render (tú, con mi ayuda paso a paso)
 
-1. Ir a <https://render.com> → crear cuenta (con GitHub es lo más simple;
-   no pide tarjeta).
+1. Ir a <https://render.com> → crear cuenta (no pide tarjeta).
 2. **New +** → **Web Service** → conectar el repositorio del paso 3.
 3. En la configuración del servicio:
    - **Environment**: `Docker` (Render detecta el `Dockerfile` del proyecto
@@ -116,7 +117,6 @@ cuenta de servicio para poder leer/escribir en Firestore y Storage.
      Firestore).
 4. Antes de crear el servicio, bajar a **Advanced** y agregar:
    - **Environment Variables**:
-     - `FIREBASE_STORAGE_BUCKET` = `<ID-DEL-PROYECTO>.appspot.com`
      - `GOOGLE_APPLICATION_CREDENTIALS` = `/etc/secrets/firebase-service-account.json`
      - `CLAVE_MAESTRA_DESBLOQUEO` = (opcional, la que quieras)
      - Las de WhatsApp si las vas a usar (ver `.env.example`).
@@ -139,19 +139,18 @@ mientras te mantengas dentro de esos cupos.
 Cada vez que hagas `git push` a la rama conectada (`main`), Render
 redespliega solo.
 
-## 7. Reglas e índices de Firestore/Storage
+## 7. Reglas e índices de Firestore
 
 Desde tu computador (usando el CLI de Firebase, no Render):
 
 ```bash
 cd desarmaduria-firebase-nuevo
-firebase deploy --only firestore:rules,firestore:indexes,storage:rules
+firebase deploy --only firestore:rules,firestore:indexes
 ```
 
-- `firestore.rules` / `storage.rules`: niegan todo acceso directo desde el
-  navegador — el frontend nunca habla con Firestore/Storage directo, solo
-  con `/api/...` en el propio backend (Render) (ver los comentarios en esos
-  archivos).
+- `firestore.rules`: niega todo acceso directo desde el navegador — el
+  frontend nunca habla con Firestore directo, solo con `/api/...` en el
+  propio backend (Render) (ver los comentarios en ese archivo).
 - `firestore.indexes.json`: ya incluye el índice que necesita
   `/api/marketplace/buscar` (una consulta `collectionGroup` sobre
   `inventario`). Si en el futuro se agrega alguna otra consulta
@@ -167,7 +166,6 @@ desplegado, solo que Firestore exista), desde tu computador:
 
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=/ruta/a/la/misma/clave-del-paso-5.json \
-FIREBASE_STORAGE_BUCKET=<ID-DEL-PROYECTO>.appspot.com \
   node migracion/correr-migracion.js /ruta/a/desarmaduria.db
 ```
 
@@ -180,7 +178,8 @@ Por decisión ya tomada, esto migra **solo el negocio real** (no los dos
 negocios de demostración) — ver `migracion/migrar.js` si en algún momento
 se quiere cambiar eso (`NEGOCIOS_A_MIGRAR`). El script avisa y se detiene
 si el negocio ya existe en el destino, para no duplicar nada si se corre
-dos veces por error.
+dos veces por error. Las fotos que el inventario pueda tener en el sistema
+viejo no se migran — el sistema nuevo no las usa (igual que el taller).
 
 Después de migrar, todos los usuarios pueden entrar con la MISMA
 contraseña que tenían en el sistema actual — no hay que resetear nada.

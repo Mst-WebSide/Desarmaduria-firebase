@@ -31,27 +31,6 @@
     </div>
     <label>Vehículo del que salió (opcional — vacío si es genérico o comprado aparte)</label>
     <select id="r-vehiculo"><option value="">— Repuesto genérico —</option></select>
-    <label>Fotos (hasta 3, opcional)</label>
-    <div class="fotos-slots" id="fotos-nuevo-repuesto">
-      <label class="foto-slot" data-slot="0">
-        <input type="file" accept="image/*" class="input-foto-nueva" data-slot="0" hidden>
-        <span class="foto-slot-vacio">+ Agregar foto</span>
-        <img class="foto-slot-preview" style="display:none">
-        <button type="button" class="foto-slot-quitar" style="display:none">✕</button>
-      </label>
-      <label class="foto-slot" data-slot="1">
-        <input type="file" accept="image/*" class="input-foto-nueva" data-slot="1" hidden>
-        <span class="foto-slot-vacio">+ Agregar foto</span>
-        <img class="foto-slot-preview" style="display:none">
-        <button type="button" class="foto-slot-quitar" style="display:none">✕</button>
-      </label>
-      <label class="foto-slot" data-slot="2">
-        <input type="file" accept="image/*" class="input-foto-nueva" data-slot="2" hidden>
-        <span class="foto-slot-vacio">+ Agregar foto</span>
-        <img class="foto-slot-preview" style="display:none">
-        <button type="button" class="foto-slot-quitar" style="display:none">✕</button>
-      </label>
-    </div>
     <div style="margin-top:14px">
       <button class="btn" id="btn-crear-repuesto">+ Agregar al inventario</button>
     </div>
@@ -82,15 +61,6 @@
   </div>
 </main>
 
-<div class="modal-overlay" id="modal-fotos" style="display:none">
-  <div class="modal-fotos-card">
-    <div class="modal-fotos-header">
-      <h3 id="modal-fotos-titulo">Fotos del repuesto</h3>
-      <button type="button" class="btn secundario pequeno" id="btn-cerrar-modal-fotos">✕ Cerrar</button>
-    </div>
-    <div class="modal-fotos-grid" id="modal-fotos-grid"></div>
-  </div>
-</div>
 <footer>Sistema de gestión para desarmadurías — acceso restringido a personal autorizado.</footer>
 <script src="/js/common.js"></script>
 <script>window.__sesion = ErpAuth.iniciarSesionBar();</script>

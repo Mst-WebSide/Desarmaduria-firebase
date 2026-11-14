@@ -1,36 +1,28 @@
 # Diseño de datos en Firestore — migración desde SQL
 
-## Decisión: el taller mecánico pierde la carga de fotos en esta versión
+## Decisión: ni el taller mecánico ni el inventario tienen fotos en esta versión
 
-Para no aumentar el uso de almacenamiento en Firebase, se decidió que en la
-versión migrada **el taller mecánico ya no tiene carga de fotos** (ni de
-ingreso ni de entrega) — mantiene todos sus demás datos (dueño, vehículo,
-presupuesto, trabajos realizados, cobro final) y el PDF de entrega, solo que
-ese PDF ya no incluye fotos. La carga de fotos queda exclusivamente para los
-repuestos de inventario. Esto solo aplica a la versión en Firebase — el
-sistema actual en Windows no se toca y sigue con fotos en el taller.
+Para no depender de Cloud Storage de Firebase (que desde fines de 2024 exige
+pasar al plan Blaze solo para poder crearse, aunque el uso real sea gratis)
+ni de ningún servicio externo de imágenes, se decidió que en la versión
+migrada **ningún módulo tiene carga de fotos**:
 
-Por eso la colección `taller_ordenes/{id}/fotos` de la primera versión de este
-documento se elimina del diseño (ver más abajo).
+- **Taller mecánico**: ya no tiene carga de fotos (ni de ingreso ni de
+  entrega) — mantiene todos sus demás datos (dueño, vehículo, presupuesto,
+  trabajos realizados, cobro final) y el PDF de entrega, solo que ese PDF ya
+  no incluye fotos.
+- **Inventario**: igual que el taller, ya no tiene carga de fotos (`foto_1`,
+  `foto_2`, `foto_3`) — mantiene todos sus demás datos (nombre, categoría,
+  stock, precio, ubicación, vehículo de origen).
 
-## Hallazgo importante: las fotos de inventario no pueden ir dentro de los documentos
+Esto solo aplica a la versión en Firebase — el sistema actual en Windows no
+se toca y sigue con fotos en ambos módulos.
 
-Firestore tiene un límite duro de **1 MiB por documento**. Hoy, cada foto de
-repuesto se guarda como texto base64 de hasta 1.5 MB, y hay repuestos con 3
-fotos (hasta ~4.5 MB). Esa fila no entraría en un documento de Firestore.
-
-Por eso las fotos de inventario se mueven a **Cloud Storage for Firebase**
-(almacenamiento de archivos, parte del mismo proyecto y con capa gratuita
-propia: 5GB guardados y 1GB/día de descarga gratis). El documento de
-Firestore guarda solo la URL del archivo en vez del base64 completo.
-
-Esto casi no afecta al frontend: hoy el navegador comprime la foto y la manda
-como data URL al servidor (eso no cambia); lo que cambia es que el servidor,
-en vez de guardar ese texto en la base de datos, lo sube a Cloud Storage y
-guarda la URL resultante. Como un `<img src="...">` funciona igual con una
-data URL o con una URL normal, la pantalla no necesita cambios.
-
-Afecta solo a: `inventario.foto_1/2/3`.
+Por eso la colección `taller_ordenes/{id}/fotos` de la primera versión de
+este documento, y los campos `foto_1_url`/`foto_2_url`/`foto_3_url` de
+`inventario`, se eliminan del diseño (ver más abajo). Como consecuencia, ya
+no hace falta ninguna solución de almacenamiento de archivos (Cloud Storage
+de Firebase, Cloudinary u otra) para este proyecto — solo Firestore.
 
 ## Reglas generales de diseño
 
@@ -82,7 +74,8 @@ Afecta solo a: `inventario.foto_1/2/3`.
 /negocios/{negocioId}/inventario/{id autogenerado}
     vehiculo_numero (o null), codigo, nombre, categoria, cantidad_disponible,
     cantidad_minima, precio_venta, costo_unitario, ubicacion, fecha_ingreso,
-    activo, foto_1_url, foto_2_url, foto_3_url
+    activo
+    (sin fotos — misma decisión que el taller, ver más arriba)
 
 /negocios/{negocioId}/repisas/{id}
 /negocios/{negocioId}/catalogo_repuestos/{id}

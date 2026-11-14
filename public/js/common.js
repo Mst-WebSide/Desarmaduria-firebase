@@ -120,26 +120,6 @@ const ErpAuth = (function () {
     requestAnimationFrame(paso);
   }
 
-  // Lightbox simple para ver una foto ampliada (usado por las miniaturas de
-  // repuestos en inventario, ventas, marketplace y vehículos). Se crea una
-  // sola vez y se reutiliza en toda la página.
-  function verFotoAmpliada(src) {
-    let overlay = document.getElementById('lightbox-overlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'lightbox-overlay';
-      overlay.className = 'lightbox-overlay';
-      overlay.innerHTML = '<img class="lightbox-img" alt="Foto ampliada">';
-      overlay.addEventListener('click', () => overlay.classList.remove('abierto'));
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') overlay.classList.remove('abierto');
-      });
-      document.body.appendChild(overlay);
-    }
-    overlay.querySelector('.lightbox-img').src = src;
-    overlay.classList.add('abierto');
-  }
-
   function iniciarSesionBar(rolesPermitidos) {
     return obtenerUsuario().then((usuario) => {
       if (!usuario) {
@@ -155,7 +135,7 @@ const ErpAuth = (function () {
     });
   }
 
-  return { iniciarSesionBar, ROL_LABEL, toast, animarNumero, verFoto: verFotoAmpliada };
+  return { iniciarSesionBar, ROL_LABEL, toast, animarNumero };
 })();
 
 async function fetchJSON(url, opts) {

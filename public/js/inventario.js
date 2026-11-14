@@ -7,181 +7,6 @@
   el('r-categoria').innerHTML = CATEGORIAS.map((c) => `<option value="${c}">${c}</option>`).join('');
   el('filtro-categoria').innerHTML += CATEGORIAS.map((c) => `<option value="${c}">${c}</option>`).join('');
 
-  // ---------- Fotos: compresión, slots del formulario nuevo y modal de ver/editar ----------
-  const LADO_MAX_FOTO = 1000; // px — lado más largo tras comprimir
-  const CALIDAD_FOTO = 0.75;
-
-  function comprimirImagen(archivo) {
-    return new Promise((resolve, reject) => {
-      const lector = new FileReader();
-      lector.onerror = () => reject(new Error('No se pudo leer la imagen'));
-      lector.onload = () => {
-        const img = new Image();
-        img.onerror = () => reject(new Error('El archivo no es una imagen válida'));
-        img.onload = () => {
-          let { width, height } = img;
-          if (width > LADO_MAX_FOTO || height > LADO_MAX_FOTO) {
-            const escala = LADO_MAX_FOTO / Math.max(width, height);
-            width = Math.round(width * escala);
-            height = Math.round(height * escala);
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', CALIDAD_FOTO));
-        };
-        img.src = lector.result;
-      };
-      lector.readAsDataURL(archivo);
-    });
-  }
-
-  const fotosNuevoRepuesto = [null, null, null];
-
-  function actualizarSlotNuevo(slot) {
-    const contenedor = document.querySelector(`#fotos-nuevo-repuesto .foto-slot[data-slot="${slot}"]`);
-    const vacio = contenedor.querySelector('.foto-slot-vacio');
-    const preview = contenedor.querySelector('.foto-slot-preview');
-    const quitar = contenedor.querySelector('.foto-slot-quitar');
-    const valor = fotosNuevoRepuesto[slot];
-    if (valor) {
-      preview.src = valor;
-      preview.style.display = 'block';
-      vacio.style.display = 'none';
-      quitar.style.display = 'flex';
-    } else {
-      preview.removeAttribute('src');
-      preview.style.display = 'none';
-      vacio.style.display = 'block';
-      quitar.style.display = 'none';
-    }
-  }
-
-  document.querySelectorAll('.input-foto-nueva').forEach((input) => {
-    input.addEventListener('change', async () => {
-      const slot = Number(input.dataset.slot);
-      const archivo = input.files[0];
-      input.value = '';
-      if (!archivo) return;
-      try {
-        fotosNuevoRepuesto[slot] = await comprimirImagen(archivo);
-        actualizarSlotNuevo(slot);
-      } catch (e) {
-        ErpAuth.toast(e.message || 'No se pudo procesar la imagen', 'error');
-      }
-    });
-  });
-
-  document.querySelectorAll('#fotos-nuevo-repuesto .foto-slot-quitar').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const slot = Number(btn.closest('.foto-slot').dataset.slot);
-      fotosNuevoRepuesto[slot] = null;
-      actualizarSlotNuevo(slot);
-    });
-  });
-
-  function resetearFotosNuevo() {
-    for (let i = 0; i < 3; i++) {
-      fotosNuevoRepuesto[i] = null;
-      actualizarSlotNuevo(i);
-    }
-  }
-
-  // ---------- Modal de ver / editar fotos de un repuesto ya guardado ----------
-  async function abrirModalFotos(id) {
-    let item;
-    try {
-      item = await fetchJSON(`/api/inventario/${id}`);
-    } catch (e) {
-      ErpAuth.toast('No se pudo cargar el repuesto.', 'error');
-      return;
-    }
-    el('modal-fotos-titulo').textContent = `Fotos — ${item.nombre}`;
-    renderModalFotos(item);
-    el('modal-fotos').style.display = 'flex';
-  }
-
-  function renderModalFotos(item) {
-    el('modal-fotos-grid').innerHTML = [1, 2, 3]
-      .map((n) => {
-        const valor = item[`foto_${n}`];
-        const imagen = valor
-          ? `<img src="${valor}" class="modal-foto-img" data-ampliar="1">`
-          : '<div class="modal-foto-vacia">Sin foto</div>';
-        const controles = puedeEditar
-          ? `<div class="modal-foto-controles">
-              <label class="btn secundario pequeno">${valor ? 'Cambiar' : 'Agregar'}<input type="file" accept="image/*" class="input-foto-modal" data-slot="${n}" hidden></label>
-              ${valor ? `<button type="button" class="btn peligro pequeno btn-quitar-foto-modal" data-slot="${n}">Quitar</button>` : ''}
-            </div>`
-          : '';
-        return `<div class="modal-foto-slot" data-slot-valor="${n}">${imagen}${controles}</div>`;
-      })
-      .join('');
-
-    el('modal-fotos-grid').querySelectorAll('[data-ampliar]').forEach((img) => {
-      img.addEventListener('click', () => ErpAuth.verFoto(img.src));
-    });
-
-    if (puedeEditar) {
-      el('modal-fotos-grid').querySelectorAll('.input-foto-modal').forEach((input) => {
-        input.addEventListener('change', async () => {
-          const archivo = input.files[0];
-          input.value = '';
-          if (!archivo) return;
-          try {
-            const dataUrl = await comprimirImagen(archivo);
-            await guardarFotoModal(item.id, Number(input.dataset.slot), dataUrl);
-          } catch (e) {
-            ErpAuth.toast(e.message || 'No se pudo procesar la imagen', 'error');
-          }
-        });
-      });
-      el('modal-fotos-grid').querySelectorAll('.btn-quitar-foto-modal').forEach((btn) => {
-        btn.addEventListener('click', () => guardarFotoModal(item.id, Number(btn.dataset.slot), null));
-      });
-    }
-
-    async function guardarFotoModal(id, slot, valor) {
-      try {
-        await fetchJSON(`/api/inventario/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ [`foto_${slot}`]: valor }),
-        });
-        item[`foto_${slot}`] = valor;
-        renderModalFotos(item);
-        ErpAuth.toast('Fotos actualizadas.', 'exito');
-        await cargar();
-      } catch (e) {
-        ErpAuth.toast(e.message || 'No se pudo guardar la foto.', 'error');
-      }
-    }
-  }
-
-  el('btn-cerrar-modal-fotos').addEventListener('click', () => { el('modal-fotos').style.display = 'none'; });
-  el('modal-fotos').addEventListener('click', (e) => {
-    if (e.target.id === 'modal-fotos') el('modal-fotos').style.display = 'none';
-  });
-
-  // El click en la miniatura sigue abriendo el modal de gestión de fotos (ver
-  // abrirModalFotos), pero además cada foto trae su propio botón de lupa para
-  // verla directo en pantalla completa (el lightbox de ErpAuth.verFoto), sin
-  // tener que pasar primero por ese modal — útil sobre todo para quien no
-  // puede editar (vendedor, mecánico), que solo quiere mirarla.
-  function miniaturaHTML(it) {
-    if (!it.foto_1) {
-      return `<div class="miniatura-vacia" data-ver-fotos="${it.id}" title="Sin fotos — click para agregar">📦</div>`;
-    }
-    return `
-      <span class="miniatura-envoltura" data-ver-fotos="${it.id}">
-        <img src="${it.foto_1}" class="miniatura" alt="Foto de ${it.nombre}">
-        <button type="button" class="miniatura-ampliar" data-ver-pantalla-completa="1" title="Ver en pantalla completa">🔍</button>
-      </span>`;
-  }
-
   function filaHTML(it) {
     const bajo = it.cantidad_disponible <= it.cantidad_minima;
     // it.vehiculo_id (no la patente, que es opcional) es lo que dice si este
@@ -192,7 +17,6 @@
     if (!puedeEditar) {
       return `
         <tr>
-          <td>${miniaturaHTML(it)}</td>
           <td>${it.nombre}${it.codigo ? `<br><small style="color:var(--gris-600)">${it.codigo}</small>` : ''}</td>
           <td>${it.categoria || '—'}</td>
           <td>${vehiculoTexto}</td>
@@ -203,7 +27,6 @@
     }
     return `
       <tr data-fila="${it.id}">
-        <td>${miniaturaHTML(it)}</td>
         <td>${it.nombre}${it.codigo ? `<br><small style="color:var(--gris-600)">${it.codigo}</small>` : ''}</td>
         <td>
           <select class="edit-categoria" data-id="${it.id}" style="width:130px">
@@ -226,21 +49,10 @@
     el('lista-inventario').innerHTML = `
       <div class="tabla-scroll">
       <table>
-        <thead><tr><th>Foto</th><th>Repuesto</th><th>Categoría</th><th>De qué vehículo</th><th>Stock</th><th>Precio venta</th><th>Ubicación</th>${puedeEditar ? '<th></th>' : ''}</tr></thead>
+        <thead><tr><th>Repuesto</th><th>Categoría</th><th>De qué vehículo</th><th>Stock</th><th>Precio venta</th><th>Ubicación</th>${puedeEditar ? '<th></th>' : ''}</tr></thead>
         <tbody>${data.map(filaHTML).join('')}</tbody>
       </table>
       </div>`;
-
-    el('lista-inventario').querySelectorAll('[data-ver-fotos]').forEach((nodo) => {
-      nodo.addEventListener('click', () => abrirModalFotos(nodo.dataset.verFotos));
-    });
-    el('lista-inventario').querySelectorAll('[data-ver-pantalla-completa]').forEach((boton) => {
-      boton.addEventListener('click', (e) => {
-        e.stopPropagation(); // no abrir también el modal de gestión de fotos
-        const img = boton.previousElementSibling;
-        ErpAuth.verFoto(img.src);
-      });
-    });
 
     if (puedeEditar) {
       let temporizador = null;
@@ -321,16 +133,12 @@
           costo_unitario: Number(el('r-costo').value) || 0,
           ubicacion: el('r-ubicacion').value.trim(),
           vehiculo_id: el('r-vehiculo').value || null,
-          foto_1: fotosNuevoRepuesto[0],
-          foto_2: fotosNuevoRepuesto[1],
-          foto_3: fotosNuevoRepuesto[2],
         }),
       });
       ['r-nombre', 'r-codigo', 'r-precio', 'r-costo', 'r-ubicacion'].forEach((id) => (el(id).value = ''));
       el('r-cantidad').value = 1;
       el('r-minima').value = 1;
       el('r-vehiculo').value = '';
-      resetearFotosNuevo();
       el('mensaje-repuesto').innerHTML = '<div class="mensaje exito">✅ Repuesto agregado al inventario.</div>';
       await cargar();
     } catch (e) {

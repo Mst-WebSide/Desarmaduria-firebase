@@ -5,7 +5,6 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const { FirestoreFalso, FieldValue } = require('./fake-firestore');
-const { crearStorageFalso } = require('./fake-storage');
 const auth = require('../auth');
 
 const PUERTO = 3457;
@@ -46,9 +45,8 @@ function cookieDe(res) {
     creado_en: new Date().toISOString(),
   });
 
-  const storage = crearStorageFalso({ carpeta: '/tmp/desarmaduria-storage-falso-auth', urlBase: 'http://localhost:9999/fake-storage' });
   const server = require('../server');
-  await server.iniciar(db, storage, FieldValue);
+  await server.iniciar(db, FieldValue);
 
   // 1) login con clave incorrecta -> 401
   let r = await fetch(`${BASE}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: 'mbulon', password: 'mala' }) });

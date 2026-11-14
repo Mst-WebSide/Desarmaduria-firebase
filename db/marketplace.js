@@ -27,7 +27,6 @@ function crearMarketplaceDb(db, negociosDb) {
           categoria: item.categoria,
           cantidad_disponible: item.cantidad_disponible,
           precio_venta: item.precio_venta,
-          foto_1: item.foto_1 || null,
           negocio_id: negocioId,
           negocio_nombre: negocio.nombre,
           telefono_dueno: negocio.telefono_dueno,

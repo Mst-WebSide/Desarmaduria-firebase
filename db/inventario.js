@@ -5,9 +5,9 @@
 // número correlativo (ver db/vehiculos.js), así que no hace falta traducir
 // nada al guardar esta referencia.
 //
-// Las fotos NO se guardan acá: este módulo solo guarda las URLs
-// (foto_1/foto_2/foto_3), ya subidas a Cloud Storage por quien llama (ver
-// db/storage.js) — así este archivo no necesita saber nada de archivos.
+// Por decisión del usuario, el inventario no lleva fotos (igual que el
+// taller mecánico, ver DISEÑO-FIRESTORE.md) — así se evita depender de
+// Cloud Storage o de un servicio externo solo para eso.
 function crearInventarioDb(db) {
   const coleccion = (negocioId) => db.collection('negocios').doc(String(negocioId)).collection('inventario');
 

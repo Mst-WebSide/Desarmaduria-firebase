@@ -5,7 +5,6 @@
 // "admin" no pueda ver ninguna de estas vistas.
 const assert = require('assert');
 const { FirestoreFalso, FieldValue } = require('./fake-firestore');
-const { crearStorageFalso } = require('./fake-storage');
 const auth = require('../auth');
 
 const PUERTO = 3463;
@@ -19,14 +18,13 @@ function cookieDe(res) {
 
 (async () => {
   const db = new FirestoreFalso();
-  const storage = crearStorageFalso({ carpeta: '/tmp/desarmaduria-storage-falso-reportes', urlBase: 'http://localhost:9999/fake-storage' });
   await db.collection('negocios').doc('1').set({ nombre: 'Desarmaduría Quillota', activo: 1 });
   const { hash, salt } = auth.hashPassword('desarme2026');
   await db.collection('usuarios').doc('mbulon').set({ negocio_id: '1', nombre: 'Marta Bulón', password_hash: hash, salt, rol: 'admin', activo: 1, creado_en: new Date().toISOString() });
   await db.collection('usuarios').doc('vtest').set({ negocio_id: '1', nombre: 'Vicente Test', password_hash: hash, salt, rol: 'vendedor', activo: 1, creado_en: new Date().toISOString() });
 
   const server = require('../server');
-  await server.iniciar(db, storage, FieldValue);
+  await server.iniciar(db, FieldValue);
   const cookieAdmin = cookieDe(await fetch(`${BASE}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: 'mbulon', password: 'desarme2026' }) }));
   const cookieVendedor = cookieDe(await fetch(`${BASE}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: 'vtest', password: 'desarme2026' }) }));
 

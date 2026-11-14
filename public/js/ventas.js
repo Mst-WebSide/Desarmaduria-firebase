@@ -118,16 +118,13 @@
     }
     el('resultados-busqueda').innerHTML = resultados
       .map((it) => {
-        const miniatura = it.foto_1
-          ? `<img src="${it.foto_1}" class="miniatura" style="width:32px;height:32px;pointer-events:none">`
-          : '';
         const etiquetaBodega =
           it.origen === 'bodega'
             ? `<span class="badge bodega">IB-${it.compra_numero ?? '—'}</span> `
             : it.vehiculo_id
             ? `<span class="badge otro">I-${it.vehiculo_numero ?? '—'}</span> `
             : '';
-        return `<div class="op" data-clave="${claveItem(it)}"><span style="display:flex;align-items:center;gap:8px">${miniatura}${etiquetaBodega}${it.nombre}</span><span class="stock">${fmtCLP.format(it.precio_venta)} · stock ${it.cantidad_disponible}</span></div>`;
+        return `<div class="op" data-clave="${claveItem(it)}"><span style="display:flex;align-items:center;gap:8px">${etiquetaBodega}${it.nombre}</span><span class="stock">${fmtCLP.format(it.precio_venta)} · stock ${it.cantidad_disponible}</span></div>`;
       })
       .join('');
     el('resultados-busqueda').style.display = 'block';

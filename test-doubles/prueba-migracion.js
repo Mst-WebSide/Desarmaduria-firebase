@@ -13,7 +13,6 @@ const path = require('path');
 const assert = require('assert');
 const { DatabaseSync } = require('node:sqlite');
 const { FirestoreFalso, FieldValue } = require('./fake-firestore');
-const { crearStorageFalso } = require('./fake-storage');
 const { migrar } = require('../migracion/migrar');
 
 const PUERTO = 3465;
@@ -52,9 +51,8 @@ function contarFilas(rutaDb, tabla, where) {
   };
 
   const db = new FirestoreFalso();
-  const storage = crearStorageFalso({ carpeta: '/tmp/desarmaduria-storage-falso-migracion', urlBase: 'http://localhost:9999/fake-storage' });
 
-  const resumen = await migrar({ rutaSqlite: COPIA, db, storage, negociosAMigrar: [1], log: () => {} });
+  const resumen = await migrar({ rutaSqlite: COPIA, db, negociosAMigrar: [1], log: () => {} });
   console.log('Resumen de la migración:', resumen);
 
   assert.strictEqual(resumen.negocios, 1);
@@ -67,7 +65,7 @@ function contarFilas(rutaDb, tabla, where) {
   assert.strictEqual(resumen.chats, 0); // el negocio 2 (el otro lado del único chat) no se migró
 
   // Correrla una segunda vez sin forzar debe fallar (resguardo anti-duplicado)
-  await assert.rejects(() => migrar({ rutaSqlite: COPIA, db, storage, negociosAMigrar: [1] }));
+  await assert.rejects(() => migrar({ rutaSqlite: COPIA, db, negociosAMigrar: [1] }));
 
   // Los negocios demo NO deben existir en el destino
   const negocioDemo2 = await db.collection('negocios').doc('2').get();
@@ -77,7 +75,7 @@ function contarFilas(rutaDb, tabla, where) {
 
   // ---- Ahora, a través de la API real (no leyendo el Firestore falso directo) ----
   const server = require('../server');
-  await server.iniciar(db, storage, FieldValue);
+  await server.iniciar(db, FieldValue);
 
   // Login con la contraseña REAL de un usuario migrado (mbulon / desarme2026)
   let r = await fetch(`${BASE}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: 'mbulon', password: 'desarme2026' }) });

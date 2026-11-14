@@ -15,8 +15,6 @@ require('dotenv').config({ quiet: true });
 // comentario ahí.
 const { initializeApp, getApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
-const { getStorage } = require('firebase-admin/storage');
-const { crearStorageReal } = require('../firebase/storage-real');
 const { migrar } = require('./migrar');
 
 async function main() {
@@ -27,16 +25,11 @@ async function main() {
   }
   const forzar = process.argv.includes('--forzar');
 
-  // Mismo bucket explícito que index.js — ver ese comentario.
-  const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT;
-  const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || (PROJECT_ID ? `${PROJECT_ID}.appspot.com` : undefined);
-  initializeApp({ storageBucket });
+  initializeApp();
   const db = getFirestore();
-  const bucket = getStorage().bucket();
-  const storage = crearStorageReal(bucket);
 
   console.log(`Migrando "${rutaSqlite}" al proyecto Firebase actual (${getApp().options.projectId || 'sin projectId explícito'})...`);
-  const resumen = await migrar({ rutaSqlite, db, storage, forzar, log: (m) => console.log('→', m) });
+  const resumen = await migrar({ rutaSqlite, db, forzar, log: (m) => console.log('→', m) });
   console.log('\n✅ Migración terminada. Resumen:', resumen);
   process.exit(0);
 }

@@ -4,7 +4,6 @@
 // cada ítem (vehículo o compra de bodega).
 const assert = require('assert');
 const { FirestoreFalso, FieldValue } = require('./fake-firestore');
-const { crearStorageFalso } = require('./fake-storage');
 const auth = require('../auth');
 
 const PUERTO = 3460;
@@ -18,13 +17,12 @@ function cookieDe(res) {
 
 (async () => {
   const db = new FirestoreFalso();
-  const storage = crearStorageFalso({ carpeta: '/tmp/desarmaduria-storage-falso-ventas', urlBase: 'http://localhost:9999/fake-storage' });
   await db.collection('negocios').doc('1').set({ nombre: 'Desarmaduría Quillota', telefono_dueno: '+56911111111', activo: 1 });
   const { hash, salt } = auth.hashPassword('desarme2026');
   await db.collection('usuarios').doc('mbulon').set({ negocio_id: '1', nombre: 'Marta Bulón', password_hash: hash, salt, rol: 'admin', activo: 1, creado_en: new Date().toISOString() });
 
   const server = require('../server');
-  await server.iniciar(db, storage, FieldValue);
+  await server.iniciar(db, FieldValue);
   const cookie = cookieDe(await fetch(`${BASE}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: 'mbulon', password: 'desarme2026' }) }));
 
   // Vehículo + repuesto ligado

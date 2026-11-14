@@ -31,7 +31,6 @@ const { crearUsuariosDb } = require('../db/usuarios');
 const { crearVehiculosDb } = require('../db/vehiculos');
 const { crearInventarioDb } = require('../db/inventario');
 const { crearCatalogoDb } = require('../db/catalogo');
-const { crearStorageDb } = require('../db/storage');
 const { crearBodegaDb } = require('../db/bodega');
 const { crearRepisasDb } = require('../db/repisas');
 const { crearVentasDb } = require('../db/ventas');
@@ -55,7 +54,7 @@ function abrirSqlite(ruta) {
   };
 }
 
-async function migrar({ rutaSqlite, db, storage, negociosAMigrar = NEGOCIOS_A_MIGRAR, forzar = false, log = () => {} }) {
+async function migrar({ rutaSqlite, db, negociosAMigrar = NEGOCIOS_A_MIGRAR, forzar = false, log = () => {} }) {
   const sqlite = abrirSqlite(rutaSqlite);
   try {
     const negociosDb = crearNegociosDb(db);
@@ -63,7 +62,6 @@ async function migrar({ rutaSqlite, db, storage, negociosAMigrar = NEGOCIOS_A_MI
     const vehiculosDb = crearVehiculosDb(db);
     const inventarioDb = crearInventarioDb(db);
     const catalogoDb = crearCatalogoDb(db);
-    const storageDb = crearStorageDb(storage);
     const bodegaDb = crearBodegaDb(db);
     const repisasDb = crearRepisasDb(db, bodegaDb);
     const ventasDb = crearVentasDb(db);
@@ -192,18 +190,10 @@ async function migrar({ rutaSqlite, db, storage, negociosAMigrar = NEGOCIOS_A_MI
           ubicacion: it.ubicacion,
           fecha_ingreso: it.fecha_ingreso,
           activo: it.activo,
-          foto_1: null,
-          foto_2: null,
-          foto_3: null,
         });
-        // Fotos: en SQL van en base64 dentro de la fila; en Firestore solo se
-        // guarda la URL (ver DISEÑO-FIRESTORE.md) — se suben a Cloud Storage
-        // recién ahora que ya existe el id del documento nuevo.
-        const urls = {};
-        for (const campo of ['foto_1', 'foto_2', 'foto_3']) {
-          if (it[campo]) urls[campo] = await storageDb.subirFoto(`inventario/${negocioId}/${nuevoId}/${campo}.jpg`, it[campo]);
-        }
-        if (Object.keys(urls).length) await inventarioDb.actualizar(String(negocioId), nuevoId, urls);
+        // Por decisión del usuario, el inventario no lleva fotos en la
+        // versión nueva (ver DISEÑO-FIRESTORE.md) — las fotos que pueda
+        // tener el sistema viejo en SQLite no se migran.
         inventarioIdPorSqlId.set(it.id, nuevoId);
         resumen.inventario++;
       }

@@ -34,7 +34,6 @@ const { crearAuditoriaDb, ACCIONES: ACCIONES_AUDITORIA } = require('./db/auditor
 const { crearVehiculosDb } = require('./db/vehiculos');
 const { crearInventarioDb } = require('./db/inventario');
 const { crearCatalogoDb } = require('./db/catalogo');
-const { crearStorageDb } = require('./db/storage');
 const { crearBodegaDb } = require('./db/bodega');
 const { crearRepisasDb } = require('./db/repisas');
 const { crearVentasDb } = require('./db/ventas');
@@ -51,7 +50,7 @@ function ahora() {
 }
 
 let db; // instancia de Firestore (real o la falsa de pruebas) — se inyecta en iniciar()
-let negociosDb, usuariosDb, auditoriaDb, vehiculosDb, inventarioDb, catalogoDb, storageDb, bodegaDb, repisasDb, ventasDb, tallerDb, marketplaceDb, chatDb;
+let negociosDb, usuariosDb, auditoriaDb, vehiculosDb, inventarioDb, catalogoDb, bodegaDb, repisasDb, ventasDb, tallerDb, marketplaceDb, chatDb;
 let claveCifradoPass;
 let FieldValue; // inyectado en iniciar() — admin.firestore.FieldValue en producción, o el de fake-firestore.js en pruebas
 
@@ -60,18 +59,6 @@ function totalVenta(items) {
 }
 
 const TIPOS_PAGO = ['efectivo', 'tarjeta_debito', 'tarjeta_credito', 'transferencia', 'otro'];
-
-const MAX_BYTES_FOTO = 1.5 * 1024 * 1024; // ~1.5MB en base64 por foto (igual que la versión SQL)
-function validarFoto(valor, etiqueta) {
-  if (valor === undefined || valor === null || valor === '') return null; // se permite "sin foto"
-  if (typeof valor !== 'string' || !valor.startsWith('data:image/')) {
-    return `${etiqueta}: debe ser una imagen válida`;
-  }
-  if (valor.length > MAX_BYTES_FOTO) {
-    return `${etiqueta}: la imagen es demasiado grande`;
-  }
-  return null;
-}
 
 function registrarAuditoria(usuario, datos) {
   return auditoriaDb.registrar({ negocio_id: usuario.negocio_id, usuario, ...datos });
@@ -703,9 +690,9 @@ route(
 );
 
 // ==================== INVENTARIO ====================
-// Las fotos llegan como data URL (igual que siempre) pero se suben a Cloud
-// Storage antes de guardar el documento — Firestore guarda solo la URL
-// resultante (ver DISEÑO-FIRESTORE.md: límite de 1MiB por documento).
+// Por decisión del usuario, sin fotos (igual que el taller mecánico, ver
+// DISEÑO-FIRESTORE.md) — así no se depende de Cloud Storage ni de ningún
+// servicio externo solo para guardar imágenes.
 
 async function enriquecerConVehiculo(item, usuario) {
   if (!item.vehiculo_id) return item;
@@ -730,14 +717,7 @@ route('GET', '/api/inventario', async (req, res, params, query, usuario) => {
   if (query.get('vehiculo_id')) data = data.filter((i) => i.vehiculo_id === query.get('vehiculo_id'));
   if (query.get('bajo_stock') === '1') data = data.filter((i) => i.cantidad_disponible <= i.cantidad_minima);
   data.sort((a, b) => a.nombre.localeCompare(b.nombre));
-  // La lista no manda foto_2/foto_3 completas (solo foto_1, como miniatura) —
-  // igual que la versión SQL, para que un listado largo no pese demasiado.
-  data = await Promise.all(
-    data.map(async (i) => {
-      const { foto_2, foto_3, ...resto } = await enriquecerConVehiculo(i, usuario);
-      return resto;
-    })
-  );
+  data = await Promise.all(data.map((i) => enriquecerConVehiculo(i, usuario)));
   sendJson(res, 200, data);
 });
 
@@ -757,10 +737,6 @@ route(
       const vehiculo = await vehiculosDb.obtener(usuario.negocio_id, body.vehiculo_id);
       if (!vehiculo) return sendError(res, 400, 'El vehículo indicado no existe');
     }
-    for (const [campo, etiqueta] of [['foto_1', 'Foto 1'], ['foto_2', 'Foto 2'], ['foto_3', 'Foto 3']]) {
-      const error = validarFoto(body[campo], etiqueta);
-      if (error) return sendError(res, 400, error);
-    }
     const datos = {
       vehiculo_id: body.vehiculo_id || null,
       codigo: body.codigo || null,
@@ -773,17 +749,8 @@ route(
       ubicacion: body.ubicacion || null,
       fecha_ingreso: ahora(),
       activo: 1,
-      foto_1: null,
-      foto_2: null,
-      foto_3: null,
     };
     const id = await inventarioDb.crear(usuario.negocio_id, datos);
-    for (const campo of ['foto_1', 'foto_2', 'foto_3']) {
-      if (body[campo]) datos[campo] = await storageDb.subirFoto(`inventario/${usuario.negocio_id}/${id}/${campo}.jpg`, body[campo]);
-    }
-    if (datos.foto_1 || datos.foto_2 || datos.foto_3) {
-      await inventarioDb.actualizar(usuario.negocio_id, id, { foto_1: datos.foto_1, foto_2: datos.foto_2, foto_3: datos.foto_3 });
-    }
     const item = { id, ...datos };
     await registrarAuditoria(usuario, {
       accion: 'inventario_creado',
@@ -828,21 +795,6 @@ route(
       cambiosDb.activo = nuevoActivo;
       if (nuevoActivo !== existe.activo) cambios.push(nuevoActivo ? 'reactivado' : 'desactivado');
     }
-    let fotosCambiaron = false;
-    for (const campo of ['foto_1', 'foto_2', 'foto_3']) {
-      if (body[campo] !== undefined) {
-        const error = validarFoto(body[campo], `Foto ${campo.slice(-1)}`);
-        if (error) return sendError(res, 400, error);
-        if (body[campo]) {
-          cambiosDb[campo] = await storageDb.subirFoto(`inventario/${usuario.negocio_id}/${params.id}/${campo}.jpg`, body[campo]);
-        } else {
-          await storageDb.borrarFoto(`inventario/${usuario.negocio_id}/${params.id}/${campo}.jpg`);
-          cambiosDb[campo] = null;
-        }
-        fotosCambiaron = true;
-      }
-    }
-    if (fotosCambiaron) cambios.push('fotos actualizadas');
     if (!Object.keys(cambiosDb).length) return sendError(res, 400, 'Nada para actualizar');
     await inventarioDb.actualizar(usuario.negocio_id, params.id, cambiosDb);
     const item = await inventarioDb.obtener(usuario.negocio_id, params.id);
@@ -863,9 +815,6 @@ route(
     const enVentas = await inventarioDb.contarEnVentas(usuario.negocio_id, params.id);
     if (enVentas > 0) {
       return sendError(res, 400, 'No se puede eliminar: este repuesto ya tiene ventas registradas. Puedes desactivarlo en su lugar.');
-    }
-    for (const campo of ['foto_1', 'foto_2', 'foto_3']) {
-      await storageDb.borrarFoto(`inventario/${usuario.negocio_id}/${params.id}/${campo}.jpg`);
     }
     await inventarioDb.eliminar(usuario.negocio_id, params.id);
     await registrarAuditoria(usuario, { accion: 'inventario_eliminado', entidad_tipo: 'inventario', entidad_id: params.id, detalle: `Eliminó el repuesto "${existe.nombre}" del inventario.` });
@@ -1979,9 +1928,6 @@ route(
         ubicacion: f.ubicacion,
         fecha_ingreso: ahora(),
         activo: 1,
-        foto_1: null,
-        foto_2: null,
-        foto_3: null,
       });
       creadosInventario++;
     }
@@ -2479,7 +2425,7 @@ const server = http.createServer(async (req, res) => {
 // ---- Arranque: quién inyecta la conexión real a Firestore vive en index.js
 // (producción) o en las pruebas (Firestore falso) — este archivo no decide
 // eso, solo expone iniciar(conexionFirestore).
-async function iniciar(conexionFirestore, storage, fieldValue) {
+async function iniciar(conexionFirestore, fieldValue) {
   db = conexionFirestore;
   FieldValue = fieldValue;
   negociosDb = crearNegociosDb(db);
@@ -2488,7 +2434,6 @@ async function iniciar(conexionFirestore, storage, fieldValue) {
   vehiculosDb = crearVehiculosDb(db);
   inventarioDb = crearInventarioDb(db);
   catalogoDb = crearCatalogoDb(db);
-  storageDb = crearStorageDb(storage);
   bodegaDb = crearBodegaDb(db);
   repisasDb = crearRepisasDb(db, bodegaDb);
   ventasDb = crearVentasDb(db);
